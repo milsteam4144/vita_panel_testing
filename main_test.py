@@ -107,6 +107,12 @@ open_url_button.on_click(open_url)
     
 
 # Create a Panel layout
+
+# Header for the page (includes image)
+jpg_pane = pn.pane.Image('logo.png', width=200, height=200)
+header = pn.Row(jpg_pane, pn.pane.Markdown("# VITA: Virtual Instructor Teaching Assistant"), align='center')
+header.servable()
+
 # display buttons in a column above the file upload widget
 top_row = pn.Row(
     
