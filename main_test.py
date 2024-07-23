@@ -107,15 +107,19 @@ open_url_button.on_click(open_url)
     
 
 # Create a Panel layout
+# display buttons in a column above the file upload widget
 left_column = pn.Column(
-    "### Upload a Python (.py) File",
-    uploader.file_input,
-    uploader.view,
-    debug_button,
+    select,
     explain_button,
     open_url_button,
-    select,
+    debug_button,
+"### Upload a Python (.py) File",
+    uploader.file_input,
+    uploader.view,
+    
 )
+
+left_column.styles = {'background': 'black'}
 
 # Print the content outside the class and event handlers
 # Note: This will only print once when the script is run, and not update with uploads
@@ -300,7 +304,7 @@ chat_interface = pn.chat.ChatInterface(callback=callback)
 chat_interface.send("What would you like to ask VITA?", user="System", respond=False)
 
 # Create a layout with two columns
-layout = pn.Row(left_column, chat_interface)
+layout = pn.Column(left_column, chat_interface)
 
 # Serve the panel
 layout.servable()
