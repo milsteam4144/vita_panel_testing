@@ -23,7 +23,7 @@ body {
 """)
 
 class FileUploader(param.Parameterized):
-    file_input = pn.widgets.FileInput(accept='.py')
+    file_input = pn.widgets.FileInput(accept='.py', name='Upload .py file')
     file_input.styles = {'background': 'white'}
     file_content = param.String(default="No file uploaded yet")
     uploaded_content = None  # Class-level variable to store content
@@ -109,8 +109,8 @@ open_url_button.on_click(open_url)
 # Create a Panel layout
 
 # Header for the page (includes image)
-jpg_pane = pn.pane.Image('logo.png', width=200, height=200)
-header = pn.Row(jpg_pane, pn.pane.Markdown("# VITA: Virtual Instructor Teaching Assistant"), align='center')
+jpg_pane = pn.pane.Image('logo.png', width=80, height=80)
+header = pn.Row(jpg_pane, pn.pane.Markdown("# VITA: Virtual Interactive Teaching Assistant"), align='center')
 header.servable()
 
 # display buttons in a column above the file upload widget
@@ -120,16 +120,15 @@ top_row = pn.Row(
     open_url_button,
     debug_button,
 )
-bottom_row = pn.Row(select, "### Upload a Python (.py) File",
+bottom_row = pn.Row(select,
     uploader.file_input,
     )
 
-last_row = pn.Row(
-uploader.view,
-)
+
 
 top_row.styles = {'background': 'black'}
 bottom_row.styles = {'background': 'gray'}
+
 
 # Print the content outside the class and event handlers
 # Note: This will only print once when the script is run, and not update with uploads
@@ -313,8 +312,18 @@ async def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
 chat_interface = pn.chat.ChatInterface(callback=callback)
 chat_interface.send("What would you like to ask VITA?", user="System", respond=False)
 
+chat_column = pn.Column(chat_interface)
+chat_column.styles = {'background': 'black'}
+
+file_preview = pn.Column(
+uploader.view,
+)
+
+main_row = pn.Row(file_preview, chat_column, margin=25)
+file_preview.styles = {'background': 'white'}
+
 # Create a layout with two columns
-layout = pn.Column(top_row, bottom_row, last_row, chat_interface)
+layout = pn.Column(top_row, bottom_row, main_row)
 
 # Serve the panel
 layout.servable()
