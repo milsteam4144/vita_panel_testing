@@ -22,6 +22,8 @@ body {
 }
 """)
 
+test = ""
+
 class FileUploader(param.Parameterized):
     file_input = pn.widgets.FileInput(accept='.py', name='Upload .py file')
     file_input.styles = {'background': 'white'}
@@ -53,8 +55,10 @@ class FileUploader(param.Parameterized):
         return pn.pane.Markdown(f"```python\n{new_code}\n```")
 
     def upload_file(self, event):
+            global test
             FileUploader.uploaded_content = self.file_input.value.decode('utf-8')  # Update the class-level variable
             self.file_content = FileUploader.uploaded_content
+            test = FileUploader.uploaded_content
             # Print the file content (for debugging purposes)
             print("\nUploaded file content:\n", self.file_content)
 
@@ -66,9 +70,11 @@ debug_button = pn.widgets.Button(name='Debug the uploaded code', button_type='pr
 
 #Function that sends message to chat interface when button is clicked
 def send_message(event):
-    message = "Debugging the uploaded code..."
+    message = "Debug the uploaded code"
     # Assuming you have a function or method to send messages to the chat interface
-    chat_interface.send(message, user="Student", respond=True)
+    if test is not "":
+        chat_interface.send(message, user="Student", respond=True)
+        chat_interface.send(f"```python\n{test}\n```", user="Student", respond=True)
 
 # Watch for button click event
 debug_button.param.watch(send_message, 'clicks')
@@ -290,7 +296,7 @@ async def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
     global initiate_chat_task_created
     global input_future
 
-    #If a file is uploaded, send it to the chat interface
+    #If a file is uploaded, send it to the chat interface***********************************FIX VARIABLE
     if not initiate_chat_task_created and FileUploader.uploaded_content is not None:
         asyncio.create_task(delayed_initiate_chat(user_proxy, manager, f"```python\n{FileUploader.uploaded_content}\n```"))
 
