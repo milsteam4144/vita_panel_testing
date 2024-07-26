@@ -129,7 +129,7 @@ bottom_row.styles = {'background': 'gray'}
 
 # Print the content outside the class and event handlers
 # Note: This will only print once when the script is run, and not update with uploads
-print("Content of the uploaded file (initially):", FileUploader.uploaded_content)
+print("Content of the uploaded file (initially):", uploader.file_content)
 
 # END FILE UPLOAD COLUMN
 
