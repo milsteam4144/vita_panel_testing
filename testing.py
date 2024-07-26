@@ -1,5 +1,7 @@
 import panel as pn
 
+print(dir(pn))
+
 # Step 1: Define the global variable
 current_file_contents = "Mallory"
 

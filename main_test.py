@@ -20,8 +20,19 @@ body {
 .bk-input {
     background-color: white !important;
 }
+                         
+/* chat_style.css */
+.full-window {
+    width: 100vw;
+    height: 100vh;
+    overflow: auto;  /* Ensure scrollbars appear if content overflows */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    margin: 0;
+    padding: 0;
+}
 """)
 
+# Global variable to hold the file content outside of the FileUploader class
 test = ""
 
 class FileUploader(param.Parameterized):
@@ -186,7 +197,7 @@ user_proxy = MyConversableAgent(
    """,
    #Only say APPROVED in most cases, and say exit when nothing to be done further. Do not say others.
    code_execution_config=False,
-   #default_auto_reply="Approved", 
+   default_auto_reply="Please elaborate", 
    human_input_mode="ALWAYS",
    #llm_config=gpt4_config,
 )
@@ -296,11 +307,9 @@ async def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
     global initiate_chat_task_created
     global input_future
 
-    #If a file is uploaded, send it to the chat interface***********************************FIX VARIABLE
     if not initiate_chat_task_created and FileUploader.uploaded_content is not None:
-        asyncio.create_task(delayed_initiate_chat(user_proxy, manager, f"```python\n{FileUploader.uploaded_content}\n```"))
+        asyncio.create_task(delayed_initiate_chat(user_proxy, manager, contents))
 
-    #If NO file is uploaded, send message contents to the chat interface without the file contents (which is None)
     elif not initiate_chat_task_created and FileUploader.uploaded_content is None:
         asyncio.create_task(delayed_initiate_chat(user_proxy, manager, contents))
 
