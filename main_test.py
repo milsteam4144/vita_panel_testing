@@ -104,8 +104,6 @@ open_url_button = pn.widgets.Button(name='See Instructor Examples', button_type=
 open_url_button.on_click(open_url)
 
 
-    
-
 # Create a Panel layout
 
 # Header for the page (includes image)
@@ -119,6 +117,7 @@ top_row = pn.Row(
     explain_button,
     open_url_button,
     debug_button,
+    styles={'position': 'sticky', 'top': '0', 'background': 'white', 'z-index': '1000'}
 )
 bottom_row = pn.Row(select,
     uploader.file_input,
@@ -126,7 +125,7 @@ bottom_row = pn.Row(select,
 
 
 
-top_row.styles = {'background': 'black'}
+#top_row.styles = {'background': 'black'}
 bottom_row.styles = {'background': 'gray'}
 
 
@@ -315,11 +314,33 @@ chat_interface.send("What would you like to ask VITA?", user="System", respond=F
 chat_column = pn.Column(chat_interface)
 chat_column.styles = {'background': 'black'}
 
-file_preview = pn.Column(
+#Create a button to hide the code snippet
+toggle_button = pn.widgets.Button(name="Show/Hide Uploaded Code", button_type="primary")
+
+see_code = pn.Row(
+    toggle_button
+)
+
+file_preview = pn.Row(
 uploader.view,
 )
 
-main_row = pn.Row(file_preview, chat_column, margin=25)
+
+#Create a funtion to hide or show the code snippet
+def toggle_pane(event):
+    if file_preview.visible:
+        file_preview.visible = False
+        toggle_button.name = "Show Code"
+    else:
+        file_preview.visible = True
+        toggle_button.name = "Hide Code"
+
+# Attach the toggle function to the button's click event
+toggle_button.on_click(toggle_pane)
+
+code_snippet_column = pn.Column(see_code, file_preview)
+
+main_row = pn.Row(code_snippet_column, chat_column, margin=25)
 file_preview.styles = {'background': 'white'}
 
 # Create a layout with two columns
