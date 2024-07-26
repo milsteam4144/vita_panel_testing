@@ -53,12 +53,10 @@ class FileUploader(param.Parameterized):
         return pn.pane.Markdown(f"```python\n{new_code}\n```")
 
     def upload_file(self, event):
-        if self.file_input.value is not None:
-            content = self.file_input.value.decode('utf-8')
-            self.file_content = content
-            FileUploader.uploaded_content = content  # Update the class-level variable
+            FileUploader.uploaded_content = self.file_input.value.decode('utf-8')  # Update the class-level variable
+            self.file_content = FileUploader.uploaded_content
             # Print the file content (for debugging purposes)
-            print("Uploaded file content:\n", FileUploader.uploaded_content)
+            print("\nUploaded file content:\n", self.file_content)
 
 # Create an instance of the FileUploader class
 uploader = FileUploader()
