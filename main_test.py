@@ -127,12 +127,20 @@ header = pn.Row(jpg_pane, pn.pane.Markdown("# VITA: Virtual Interactive Teaching
 header.servable()
 
 # display buttons in a column above the file upload widget
+test_row = pn.Row(explain_button,
+    styles={'background': 'orange'},
+    sizing_mode='stretch_width',
+    )
+
+
+
 top_row = pn.Row(
     
     explain_button,
     open_url_button,
     debug_button,
-    styles={'position': 'sticky', 'top': '0', 'background': 'white', 'z-index': '1000'}
+    styles={'position': 'sticky', 'top': '0', 'background': 'white', 'z-index': '1000', },
+    sizing_mode='stretch_width',
 )
 bottom_row = pn.Row(select,
     uploader.file_input,
@@ -351,13 +359,17 @@ def toggle_pane(event):
 # Attach the toggle function to the button's click event
 toggle_button.on_click(toggle_pane)
 
-code_snippet_column = pn.Column(see_code, file_preview)
+# The line below utilizes the hide/show code toggle button
+#code_snippet_column = pn.Column(see_code, file_preview, scroll=True)
 
-main_row = pn.Row(code_snippet_column, chat_column, margin=25)
-file_preview.styles = {'background': 'white'}
+# NOT using the code toggle button
+code_snippet_column = pn.Column(file_preview)
+
+main_row = pn.Row(code_snippet_column, chat_column,)
+#file_preview.styles = {'background': 'white'}
 
 # Create a layout with two columns
-layout = pn.Column(top_row, bottom_row, main_row)
+layout = pn.Column(test_row, top_row, bottom_row, main_row)
 
 # Serve the panel
 layout.servable()
