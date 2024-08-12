@@ -122,41 +122,32 @@ open_url_button.on_click(open_url)
 # Create a Panel layout
 
 # Header for the page (includes image)
-jpg_pane = pn.pane.Image('logo.png', width=80, height=80)
-header = pn.Row(jpg_pane, pn.pane.Markdown("# VITA: Virtual Interactive Teaching Assistant"), align='center')
+jpg_pane = pn.pane.Image('logo.png', width=120, height=80)
+header = pn.Row(jpg_pane, pn.pane.Markdown(
+    "# VITA: Virtual Interactive Teaching Assistant"), 
+    align='center',
+    margin=(10, 0, 20, 10))
 header.servable()
 
 # display buttons in a column above the file upload widget
 # AN: we want to nest our two top elements in a row so that they are side by side
 # we're testing looks before moving the buttons to the top of the page
 
-test_left = pn.Column(explain_button, open_url_button, sizing_mode='stretch_width',)
-test_right = pn.Column(debug_button, sizing_mode='stretch_width',)
-
-test_row = pn.Row(test_left,
-                  test_right, 
-    styles={'background': 'orange'},
-    sizing_mode='stretch_width',
-    )
-
-
 
 top_row = pn.Row(
-    
     explain_button,
     open_url_button,
+    pn.Spacer(sizing_mode='stretch_width',),
     debug_button,
-    styles={'position': 'sticky', 'top': '0', 'background': 'white', 'z-index': '1000', },
     sizing_mode='stretch_width',
 )
-bottom_row = pn.Row(select,
+bottom_row = pn.Row(
+    select,
+    pn.Spacer(sizing_mode='stretch_width',),
     uploader.file_input,
+    sizing_mode='stretch_width',
     )
 
-
-
-#top_row.styles = {'background': 'black'}
-bottom_row.styles = {'background': 'gray'}
 
 
 # Print the content outside the class and event handlers
@@ -372,11 +363,16 @@ toggle_button.on_click(toggle_pane)
 # NOT using the code toggle button
 code_snippet_column = pn.Column(file_preview)
 
-main_row = pn.Row(code_snippet_column, chat_column,)
-#file_preview.styles = {'background': 'white'}
+main_row = pn.Row(
+    code_snippet_column, 
+    pn.Spacer(sizing_mode='stretch_width',),
+    chat_column, 
+    sizing_mode='stretch_width',
+    margins = (10, 10, 10, 10))
+
 
 # Create a layout with two columns
-layout = pn.Column(test_row, top_row, bottom_row, main_row)
+layout = pn.Column(top_row, bottom_row, main_row)
 
 # Serve the panel
 layout.servable()
