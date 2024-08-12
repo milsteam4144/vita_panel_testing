@@ -127,7 +127,14 @@ header = pn.Row(jpg_pane, pn.pane.Markdown("# VITA: Virtual Interactive Teaching
 header.servable()
 
 # display buttons in a column above the file upload widget
-test_row = pn.Row(explain_button,
+# AN: we want to nest our two top elements in a row so that they are side by side
+# we're testing looks before moving the buttons to the top of the page
+
+test_left = pn.Column(explain_button, open_url_button, sizing_mode='stretch_width',)
+test_right = pn.Column(debug_button, sizing_mode='stretch_width',)
+
+test_row = pn.Row(test_left,
+                  test_right, 
     styles={'background': 'orange'},
     sizing_mode='stretch_width',
     )
