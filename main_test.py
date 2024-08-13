@@ -8,29 +8,41 @@ import asyncio
 from autogen import ConversableAgent
 import param
 
-pn.extension(design="material")
 
 # Snippet below changes background color
 
-pn.config.raw_css.append("""
+css = """
 body {
     background-color: #f1b825;
+    margin: 0;
+    padding: 0;
 }
 
 .bk-input {
     background-color: white !important;
 }
                          
-/* chat_style.css */
-.full-window {
-    width: 100vw;
-    height: 100vh;
-    overflow: auto;  /* Ensure scrollbars appear if content overflows */
-    box-sizing: border-box; /* Include padding and border in the element's total width and height */
-    margin: 0;
-    padding: 0;
+.no-margin {
+    margin: 0 !important;
+    padding: 0 !important;
 }
-""")
+
+/* Allows for horizontal scrolling in a column*/
+.horizontal-scroll {
+    overflow-x: scroll;
+    white-space: nowrap;
+    background: rgb(38, 50, 56);
+}
+
+.scroll-container {
+    overflow-x: auto;   /* Enable horizontal scrolling for the column and row */
+    width: 100%;
+}
+                         
+"""
+
+# Allows the CSS to be used on the panel widgets
+pn.extension(raw_css = [css])
 
 # Global variable to hold the file content outside of the FileUploader class
 test = ""
@@ -63,7 +75,7 @@ class FileUploader(param.Parameterized):
             new_code = self.file_content
 
         print(new_code)
-        return pn.pane.Markdown(f"```python\n{new_code}\n```")
+        return pn.pane.Markdown(f"```python\n{new_code}\n```", sizing_mode='stretch_both', css_classes=['no-margin', 'scroll-container'])
 
     def upload_file(self, event):
             global test
@@ -77,7 +89,7 @@ class FileUploader(param.Parameterized):
 uploader = FileUploader()
 
 #Create a button to send a "Debug this code" message to the chat
-debug_button = pn.widgets.Button(name='Debug the uploaded code', button_type='primary')
+debug_button = pn.widgets.Button(name='Debug the uploaded code', button_type='success')
 
 #Function that sends message to chat interface when button is clicked
 def send_message(event):
@@ -135,20 +147,13 @@ header.servable()
 
 
 top_row = pn.Row(
+    debug_button, uploader.file_input,
+    pn.Spacer(sizing_mode='stretch_width',),
+    select,
     explain_button,
     open_url_button,
-    pn.Spacer(sizing_mode='stretch_width',),
-    debug_button,
     sizing_mode='stretch_width',
 )
-bottom_row = pn.Row(
-    select,
-    pn.Spacer(sizing_mode='stretch_width',),
-    uploader.file_input,
-    sizing_mode='stretch_width',
-    )
-
-
 
 # Print the content outside the class and event handlers
 # Note: This will only print once when the script is run, and not update with uploads
@@ -327,23 +332,23 @@ async def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
             print("There is currently no input being awaited.")
 
 
-chat_interface = pn.chat.ChatInterface(callback=callback)
+chat_interface = pn.chat.ChatInterface(callback=callback, sizing_mode='stretch_both')
 chat_interface.send("What would you like to ask VITA?", user="System", respond=False)
 
 chat_column = pn.Column(chat_interface)
 chat_column.styles = {'background': 'black'}
 
-#Create a button to hide the code snippet
+#Create a button to hide the code snippet - not currently using
 toggle_button = pn.widgets.Button(name="Show/Hide Uploaded Code", button_type="primary")
 
 see_code = pn.Row(
     toggle_button
 )
 
+# Not being utilized. Works with code snippet show/hide button
 file_preview = pn.Row(
-uploader.view,
+uploader.view, scroll=True, sizing_mode='stretch_both'
 )
-
 
 #Create a funtion to hide or show the code snippet
 def toggle_pane(event):
@@ -361,18 +366,19 @@ toggle_button.on_click(toggle_pane)
 #code_snippet_column = pn.Column(see_code, file_preview, scroll=True)
 
 # NOT using the code toggle button
-code_snippet_column = pn.Column(file_preview)
+code_snippet_column = pn.Column(uploader.view, scroll=False, sizing_mode='stretch_both', margin=(0, 5, 0, 0), css_classes=['horizontal-scroll'])
+
 
 main_row = pn.Row(
-    code_snippet_column, 
-    pn.Spacer(sizing_mode='stretch_width',),
-    chat_column, 
+    code_snippet_column,
+    chat_column,
+    css_classes=['no-margin', 'scroll-container'],
     sizing_mode='stretch_width',
-    margins = (10, 10, 10, 10))
-
+    margin = (0, 0, 0, 0)
+    )
 
 # Create a layout with two columns
-layout = pn.Column(top_row, bottom_row, main_row)
+layout = pn.Column(top_row, main_row, sizing_mode='stretch_both', css_classes=['no-margin', 'scroll-container'])
 
 # Serve the panel
 layout.servable()
