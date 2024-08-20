@@ -123,15 +123,14 @@ explain_button = pn.widgets.Button(name='See AI Examples', button_type='primary'
 select = pn.widgets.Select(
     name='Programming Concepts', 
     groups={
-        'Input/Output': ['Input', 'Print'], 
+        'Input/Output': ['Print', 'Get User Input'], 
         'Data Types': ['Strings', 'Integers', 'Floats'],
         'Mathematical Expressions': ['Add, Subtract, Multiply', 'Division', 'Exponents'],
         'Data Structures': ['Lists', 'Dictionaries'],
         'Branching': ['If/Else Statements', 'Elif Statements'],
         'Loops': ['For Loops', 'While Loops'],
         'Functions': ['Defining Functions', 'Calling Functions'],
-            }
-            )
+            })
 
 # Make dropdown background white
 select.styles = {'background': 'white'}
