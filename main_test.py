@@ -129,7 +129,7 @@ select = pn.widgets.Select(
         'Data Structures': ['Lists', 'Dictionaries'],
         'Branching': ['If/Else Statements', 'Elif Statements'],
         'Loops': ['For Loops', 'While Loops'],
-        'Functions': ['Defining Functions', 'Calling Functions'],
+        'Functions': ['Defining Functions', 'Calling Functions', 'Main Function'],
             })
 
 # Make dropdown background white
