@@ -28,9 +28,7 @@ body {
 }
 
 /* Allows for horizontal scrolling in a column*/
-.horizontal-scroll {
-    overflow-x: scroll;
-    white-space: nowrap;
+.code_bg {
     background: rgb(38, 50, 56);
 }
 
@@ -99,13 +97,43 @@ def send_message(event):
         chat_interface.send(message, user="Student", respond=True)
         chat_interface.send(f"```python\n{test}\n```", user="Student", respond=True)
 
-# Watch for button click event
+# Associate it with send_message function
 debug_button.param.watch(send_message, 'clicks')
 
+#Create a button to hide/show the code snippet 
+toggle_button = pn.widgets.Button(name="Show/Hide Uploaded Code", button_type="primary")
 
-#Create a button to send an "Explain a concept" message to the chat
+#Create a funtion to hide or show the code snippet
+def toggle_pane(event):
+    if file_preview.visible:
+        file_preview.visible = False
+        toggle_button.name = "Show Code"
+    else:
+        file_preview.visible = True
+        toggle_button.name = "Hide Code"
+
+# Attach the toggle function to the button's click event
+toggle_button.on_click(toggle_pane)
+
+
+# Create a button to send an "Explain a concept" message to the chat
 explain_button = pn.widgets.Button(name='See AI Examples', button_type='primary')
-select = pn.widgets.Select(name='Programming Concepts', options=['Strings', 'Formatted Strings', 'Lists', 'Dictionaries'])
+
+# Create the dropdown menu for programming concepts (includes subcategories)
+select = pn.widgets.Select(
+    name='Programming Concepts', 
+    groups={
+        'Input/Output': ['Input', 'Print'], 
+        'Data Types': ['Strings', 'Integers', 'Floats'],
+        'Mathematical Expressions': ['Add, Subtract, Multiply', 'Division', 'Exponents'],
+        'Data Structures': ['Lists', 'Dictionaries'],
+        'Branching': ['If/Else Statements', 'Elif Statements'],
+        'Loops': ['For Loops', 'While Loops'],
+        'Functions': ['Defining Functions', 'Calling Functions'],
+            }
+            )
+
+# Make dropdown background white
 select.styles = {'background': 'white'}
 
 #Function that sends message to chat interface when button is clicked
@@ -131,8 +159,6 @@ open_url_button = pn.widgets.Button(name='See Instructor Examples', button_type=
 open_url_button.on_click(open_url)
 
 
-# Create a Panel layout
-
 # Header for the page (includes image)
 jpg_pane = pn.pane.Image('logo.png', width=120, height=80)
 header = pn.Row(jpg_pane, pn.pane.Markdown(
@@ -141,13 +167,9 @@ header = pn.Row(jpg_pane, pn.pane.Markdown(
     margin=(10, 0, 20, 10))
 header.servable()
 
-# display buttons in a column above the file upload widget
-# AN: we want to nest our two top elements in a row so that they are side by side
-# we're testing looks before moving the buttons to the top of the page
-
-
+# Create the row with the buttons and file input
 top_row = pn.Row(
-    debug_button, uploader.file_input,
+    toggle_button, uploader.file_input, debug_button,
     pn.Spacer(sizing_mode='stretch_width',),
     select,
     explain_button,
@@ -338,35 +360,19 @@ chat_interface.send("What would you like to ask VITA?", user="System", respond=F
 chat_column = pn.Column(chat_interface)
 chat_column.styles = {'background': 'black'}
 
-#Create a button to hide the code snippet - not currently using
-toggle_button = pn.widgets.Button(name="Show/Hide Uploaded Code", button_type="primary")
 
-see_code = pn.Row(
-    toggle_button
-)
 
-# Not being utilized. Works with code snippet show/hide button
+# Works with code snippet show/hide button
 file_preview = pn.Row(
 uploader.view, scroll=True, sizing_mode='stretch_both'
 )
 
-#Create a funtion to hide or show the code snippet
-def toggle_pane(event):
-    if file_preview.visible:
-        file_preview.visible = False
-        toggle_button.name = "Show Code"
-    else:
-        file_preview.visible = True
-        toggle_button.name = "Hide Code"
-
-# Attach the toggle function to the button's click event
-toggle_button.on_click(toggle_pane)
 
 # The line below utilizes the hide/show code toggle button
-#code_snippet_column = pn.Column(see_code, file_preview, scroll=True)
+code_snippet_column = pn.Column(file_preview, scroll=True, css_classes=['code_bg'])
 
 # NOT using the code toggle button
-code_snippet_column = pn.Column(uploader.view, scroll=False, sizing_mode='stretch_both', margin=(0, 5, 0, 0), css_classes=['horizontal-scroll'])
+#code_snippet_column = pn.Column(toggle_button, uploader.view, scroll=False, sizing_mode='stretch_both', margin=(0, 5, 0, 0))
 
 
 main_row = pn.Row(
