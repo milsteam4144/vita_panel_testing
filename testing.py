@@ -11,7 +11,7 @@ import asyncio
 os.environ["AUTOGEN_USE_DOCKER"] = "False"
 
 
-os.environ["OPENAI_API_KEY"] = "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"
+os.environ["OPENAI_API_KEY"] = "INSERT_API_KEY"
 
 config_list = [
     {
