@@ -27,15 +27,10 @@ body {
     padding: 0 !important;
 }
 
-/* Allows for horizontal scrolling in a column*/
 .code_bg {
     background: rgb(38, 50, 56);
 }
 
-.scroll-container {
-    overflow-x: auto;   /* Enable horizontal scrolling for the column and row */
-    width: 100%;
-}
                          
 """
 
@@ -73,7 +68,7 @@ class FileUploader(param.Parameterized):
             new_code = self.file_content
 
         print(new_code)
-        return pn.pane.Markdown(f"```python\n{new_code}\n```", sizing_mode='stretch_both', css_classes=['no-margin', 'scroll-container'])
+        return pn.pane.Markdown(f"```python\n{new_code}\n```", sizing_mode='stretch_both', css_classes=['no-margin'])
 
     def upload_file(self, event):
             global test
@@ -100,22 +95,6 @@ def send_message(event):
 # Associate it with send_message function
 debug_button.param.watch(send_message, 'clicks')
 
-#Create a button to hide/show the code snippet 
-toggle_button = pn.widgets.Button(name="Show/Hide Uploaded Code", button_type="primary")
-
-#Create a funtion to hide or show the code snippet
-def toggle_pane(event):
-    if file_preview.visible:
-        file_preview.visible = False
-        toggle_button.name = "Show Code"
-    else:
-        file_preview.visible = True
-        toggle_button.name = "Hide Code"
-
-# Attach the toggle function to the button's click event
-toggle_button.on_click(toggle_pane)
-
-
 # Create a button to send an "Explain a concept" message to the chat
 explain_button = pn.widgets.Button(name='See AI Examples', button_type='primary')
 
@@ -123,8 +102,8 @@ explain_button = pn.widgets.Button(name='See AI Examples', button_type='primary'
 select = pn.widgets.Select(
     name='Programming Concepts', 
     groups={
-        'Input/Output': ['Print', 'Get User Input'], 
-        'Data Types': ['Strings', 'Integers', 'Floats'],
+        'Input/Output': ['Print Function', 'Get User Input'], 
+        'Data Types': ['Strings', 'Integers', 'Floats', 'Formatted Strings'],
         'Mathematical Expressions': ['Add, Subtract, Multiply', 'Division', 'Exponents'],
         'Data Structures': ['Lists', 'Dictionaries'],
         'Branching': ['If/Else Statements', 'Elif Statements'],
@@ -165,6 +144,9 @@ header = pn.Row(jpg_pane, pn.pane.Markdown(
     align='center',
     margin=(10, 0, 20, 10))
 header.servable()
+
+#Create a button to hide/show the code snippet 
+toggle_button = pn.widgets.Button(name="Show/Hide Uploaded Code", button_type="primary")
 
 # Create the row with the buttons and file input
 top_row = pn.Row(
@@ -229,12 +211,12 @@ user_proxy = MyConversableAgent(
    """,
    #Only say APPROVED in most cases, and say exit when nothing to be done further. Do not say others.
    code_execution_config=False,
-   default_auto_reply="Please elaborate", 
+   default_auto_reply="Done", 
    human_input_mode="ALWAYS",
    #llm_config=gpt4_config,
 )
 
-
+# This agent is currently not being used in the group_chat. It is for testing.
 decider = autogen.AssistantAgent(
     name="Decider",
     human_input_mode="NEVER",
@@ -263,7 +245,7 @@ You don't write code.You never show the corrected code.
 corrector = autogen.AssistantAgent(
     name="Corrector",
     human_input_mode="NEVER",
-    system_message='''Corrector. Suggest a plan on to fix each syntax error. \
+    system_message='''Corrector. Suggest a plan to fix each syntax error. \
     Explain how to correct the error as simply as possible using non-technical jargon. \
     You never show the corrected code. However, you may show an example of similar code. Any code that you \
     provide must not be the corrected code to the code you were given. It can only be examples of the same \
@@ -281,7 +263,7 @@ manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=gpt4_config)
 
 avatar = {user_proxy.name:"👨‍💼", debugger.name:"👩‍💻", corrector.name:"🛠",}
 
-#decider.name:"🐍"
+# decider.name:"🐍"
 
 def print_messages(recipient, messages, sender, config):
 
@@ -302,11 +284,13 @@ user_proxy.register_reply(
     config={"callback": None},
 )
 
+'''
 decider.register_reply(
     [autogen.Agent, None],
     reply_func=print_messages, 
     config={"callback": None},
 ) 
+'''
 
 debugger.register_reply(
     [autogen.Agent, None],
@@ -339,10 +323,11 @@ async def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
     global initiate_chat_task_created
     global input_future
 
-    if not initiate_chat_task_created and FileUploader.uploaded_content is not None:
+    if not initiate_chat_task_created and FileUploader.uploaded_content != 'No file uploaded yet':
         asyncio.create_task(delayed_initiate_chat(user_proxy, manager, contents))
 
-    elif not initiate_chat_task_created and FileUploader.uploaded_content is None:
+    
+    elif not initiate_chat_task_created and FileUploader.uploaded_content == 'No file uploaded yet':
         asyncio.create_task(delayed_initiate_chat(user_proxy, manager, contents))
 
 
@@ -353,37 +338,46 @@ async def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
             print("There is currently no input being awaited.")
 
 
-chat_interface = pn.chat.ChatInterface(callback=callback, sizing_mode='stretch_both')
+chat_interface = pn.chat.ChatInterface(callback=callback,)
 chat_interface.send("What would you like to ask VITA?", user="System", respond=False)
 
-chat_column = pn.Column(chat_interface)
+chat_column = pn.Column(chat_interface, sizing_mode='stretch_both')
 chat_column.styles = {'background': 'black'}
 
-
-
-# Works with code snippet show/hide button
+# Works with code_snippet_column to show/hide when using toggle button
 file_preview = pn.Row(
-uploader.view, scroll=True, sizing_mode='stretch_both'
+uploader.view,
 )
 
 
 # The line below utilizes the hide/show code toggle button
-code_snippet_column = pn.Column(file_preview, scroll=True, css_classes=['code_bg'])
+code_snippet_column = pn.Column(file_preview, css_classes=['code_bg'], scroll=True)
 
-# NOT using the code toggle button
-#code_snippet_column = pn.Column(toggle_button, uploader.view, scroll=False, sizing_mode='stretch_both', margin=(0, 5, 0, 0))
-
-
+# Create the main row with the code snippet and chat interface
 main_row = pn.Row(
     code_snippet_column,
-    chat_column,
-    css_classes=['no-margin', 'scroll-container'],
-    sizing_mode='stretch_width',
-    margin = (0, 0, 0, 0)
-    )
+     pn.layout.Spacer(width=20),
+    chat_column,)
+
+
+# Create a funtion to hide or show the code snippet
+def toggle_pane(event):
+    if code_snippet_column.visible:
+        code_snippet_column.visible = False
+        chat_column.sizing_mode = 'stretch_both'
+        toggle_button.name = "Show Code"
+    else:
+        code_snippet_column.visible = True
+        toggle_button.name = "Hide Code"
+
+# Attach the toggle function to the button's click event
+toggle_button.on_click(toggle_pane)
+
+# NOT using the code toggle button
+# code_snippet_column = pn.Column(toggle_button, uploader.view, scroll=False, sizing_mode='stretch_both', margin=(0, 5, 0, 0))
 
 # Create a layout with two columns
-layout = pn.Column(top_row, main_row, sizing_mode='stretch_both', css_classes=['no-margin', 'scroll-container'])
+layout = pn.Column(top_row, main_row,)
 
 # Serve the panel
 layout.servable()
