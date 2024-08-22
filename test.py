@@ -89,8 +89,10 @@ def send_message(event):
     message = "Debug the uploaded code"
     # Assuming you have a function or method to send messages to the chat interface
     if test is not "":
-        chat_interface.send(message, user="Student", respond=False) #content, user (recepient of message), 
-        chat_interface.send(f"```python\n{test}\n```", user="Student", respond=True, metadata={'done':'true'})
+        chat_interface.send(message, user="User", respond=False) #content, user (recepient of message),
+        chat_interface.send(f"```python\n{test}\n```", user="User", respond=True)
+        #user_proxy.send(message, recipient=debugger,  request_reply=True)
+        #user_proxy.send(f"```python\n{test}\n```", recipient=debugger,  request_reply=True)
 
 # Associate it with send_message function
 debug_button.param.watch(send_message, 'clicks')
@@ -270,8 +272,12 @@ def print_messages(recipient, messages, sender, config):
 
     content = messages[-1]['content']
 
+    print("\nNAMES OF MESSENGERS: ", (messages[-1]))
+
+
     if all(key in messages[-1] for key in ['name']):
-        if sender.name != "Student":
+        if messages[-1]['name'] != "Student":
+        #if sender.name != "Student":
             chat_interface.send(content, user=messages[-1]['name'], avatar=avatar[messages[-1]['name']], respond=False)
     else:
         chat_interface.send(content, user=recipient.name, avatar=avatar[recipient.name], respond=False)
