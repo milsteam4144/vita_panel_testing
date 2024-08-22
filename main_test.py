@@ -87,10 +87,12 @@ debug_button = pn.widgets.Button(name='Debug the uploaded code', button_type='su
 #Function that sends message to chat interface when button is clicked
 def send_message(event):
     message = "Debug the uploaded code"
+    #pretty_code = f"```python\n{test}\n```"
     # Assuming you have a function or method to send messages to the chat interface
     if test is not "":
-        chat_interface.send(message, user="Student", respond=True)
-        chat_interface.send(f"```python\n{test}\n```", user="Student", respond=True)
+        #chat_interface.send(message + " " + pretty_code, user="Student", respond=True)
+        chat_interface.send(message, user="System", respond=False) #content, user (recepient of message), 
+        chat_interface.send(f"```python\n{test}\n```", user="System", respond=True)
 
 # Associate it with send_message function
 debug_button.param.watch(send_message, 'clicks')
@@ -180,7 +182,6 @@ gpt4_config = {"config_list": config_list, "temperature":0, "seed": 53}
 
 input_future = None
 
-
 # Create a custom agent class that allows human input
 class MyConversableAgent(autogen.ConversableAgent):
 
@@ -202,16 +203,15 @@ class MyConversableAgent(autogen.ConversableAgent):
 
 
 
-
 user_proxy = MyConversableAgent(
    name="Student",
-   is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("Done"),
+   is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("exit"),
    system_message="""A human student that is learning to code in Python. Interact with the corrector to discuss the plan to fix any errors in the code. \
     The plan to fix the errors in the code needs to be approved by this admin. 
    """,
    #Only say APPROVED in most cases, and say exit when nothing to be done further. Do not say others.
    code_execution_config=False,
-   default_auto_reply="Done", 
+   #default_auto_reply="Approved", 
    human_input_mode="ALWAYS",
    #llm_config=gpt4_config,
 )
@@ -265,6 +265,7 @@ avatar = {user_proxy.name:"👨‍💼", debugger.name:"👩‍💻", corrector.
 
 # decider.name:"🐍"
 
+
 def print_messages(recipient, messages, sender, config):
 
     print(f"Messages from: {sender.name} sent to: {recipient.name} | num messages: {len(messages)} | message: {messages[-1]}")
@@ -277,6 +278,7 @@ def print_messages(recipient, messages, sender, config):
         chat_interface.send(content, user=recipient.name, avatar=avatar[recipient.name], respond=False)
     
     return False, None  # required to ensure the agent communication flow continues
+
 
 user_proxy.register_reply(
     [autogen.Agent, None],
@@ -308,7 +310,9 @@ initiate_chat_task_created = False
 
 async def delayed_initiate_chat(agent, recipient, message):
 
+    # Create global variable that indicates if task has been created
     global initiate_chat_task_created
+
     # Indicate that the task has been created
     initiate_chat_task_created = True
 
@@ -323,13 +327,16 @@ async def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
     global initiate_chat_task_created
     global input_future
 
+    '''
     if not initiate_chat_task_created and FileUploader.uploaded_content != 'No file uploaded yet':
         asyncio.create_task(delayed_initiate_chat(user_proxy, manager, contents))
 
     
     elif not initiate_chat_task_created and FileUploader.uploaded_content == 'No file uploaded yet':
         asyncio.create_task(delayed_initiate_chat(user_proxy, manager, contents))
-
+    '''
+    if not initiate_chat_task_created:
+        asyncio.create_task(delayed_initiate_chat(user_proxy, manager, contents))
 
     else:
         if input_future and not input_future.done():
