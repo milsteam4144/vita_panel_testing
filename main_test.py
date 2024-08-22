@@ -91,8 +91,8 @@ def send_message(event):
     # Assuming you have a function or method to send messages to the chat interface
     if test is not "":
         #chat_interface.send(message + " " + pretty_code, user="Student", respond=True)
-        chat_interface.send(message, user="System", respond=False) #content, user (recepient of message), 
-        chat_interface.send(f"```python\n{test}\n```", user="System", respond=True)
+        chat_interface.send(message, user="Student", respond=False) #content, user (recepient of message), 
+        chat_interface.send(f"```python\n{test}\n```", user="Student", respond=True)
 
 # Associate it with send_message function
 debug_button.param.watch(send_message, 'clicks')
