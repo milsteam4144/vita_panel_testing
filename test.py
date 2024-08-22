@@ -272,12 +272,9 @@ def print_messages(recipient, messages, sender, config):
 
     content = messages[-1]['content']
 
-    print("\nNAMES OF MESSENGERS: ", (messages[-1]))
-
 
     if all(key in messages[-1] for key in ['name']):
         if messages[-1]['name'] != "Student":
-        #if sender.name != "Student":
             chat_interface.send(content, user=messages[-1]['name'], avatar=avatar[messages[-1]['name']], respond=False)
     else:
         chat_interface.send(content, user=recipient.name, avatar=avatar[recipient.name], respond=False)
