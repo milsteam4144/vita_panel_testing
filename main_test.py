@@ -201,8 +201,6 @@ class MyConversableAgent(autogen.ConversableAgent):
         input_future = None
         return input_value
 
-
-
 user_proxy = MyConversableAgent(
    name="Student",
    is_termination_msg=lambda x: x.get("content", "").rstrip().endswith("exit"),
