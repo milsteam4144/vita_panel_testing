@@ -9,7 +9,7 @@ from autogen import ConversableAgent
 # susanna testing
 from autogen.agentchat.contrib.retrieve_assistant_agent import RetrieveAssistantAgent
 from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
-from autogen.retrieve_utils import TEXT_FORMATS // accepted file formats for vector db
+from autogen.retrieve_utils import TEXT_FORMATS #accepted file formats for vector db
 import param
 import chromadb
 
