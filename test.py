@@ -88,7 +88,7 @@ debug_button = pn.widgets.Button(name='Debug the uploaded code', button_type='su
 def send_message(event):
     message = "Debug the uploaded code"
     # Assuming you have a function or method to send messages to the chat interface
-    if test is not "":
+    if test != "":
         chat_interface.send(message, user="User", respond=False) #content, user (recepient of message),
         chat_interface.send(f"```python\n{test}\n```", user="User", respond=True)
         #user_proxy.send(message, recipient=debugger,  request_reply=True)
@@ -172,11 +172,25 @@ print("Content of the uploaded file (initially):", uploader.file_content)
 
 os.environ["AUTOGEN_USE_DOCKER"] = "False"
 
-config_list = [
-    {
-        'model': 'gpt-4o',
-        'api_key': os.environ.get("OPENAI_API_KEY"),
-    }
+# Configuration for LM Studio (local) or OpenAI (cloud)
+USE_LOCAL_MODEL = os.environ.get("USE_LOCAL_MODEL", "True").lower() == "true"
+
+if USE_LOCAL_MODEL:
+    # LM Studio configuration (default local endpoint)
+    config_list = [
+        {
+            'model': os.environ.get("LOCAL_MODEL_NAME", "dolphin-2.1-mistral-7b"),
+            'base_url': os.environ.get("LOCAL_MODEL_URL", "http://localhost:1234/v1"),
+            'api_key': "lm-studio",  # LM Studio doesn't require a real API key
+        }
+    ]
+else:
+    # OpenAI configuration
+    config_list = [
+        {
+            'model': 'gpt-4o',
+            'api_key': os.environ.get("OPENAI_API_KEY"),
+        }
     ]
 gpt4_config = {"config_list": config_list, "temperature":0, "seed": 53}
 
@@ -270,8 +284,12 @@ def print_messages(recipient, messages, sender, config):
 
     print(f"Messages from: {sender.name} sent to: {recipient.name} | num messages: {len(messages)} | message: {messages[-1]}")
 
-    content = messages[-1]['content']
-
+    content = messages[-1].get('content', '')
+    
+    # Issue #001 Fix: Filter empty messages to prevent infinite loops
+    if not content or content.isspace():
+        print(f"Skipping empty message from {sender.name}")
+        return False, None  # Skip but continue flow
 
     if all(key in messages[-1] for key in ['name']):
         if messages[-1]['name'] != "Student":
@@ -309,6 +327,7 @@ corrector.register_reply(
 
 
 initiate_chat_task_created = False
+conversation_lock = False  # Issue #003: Prevent concurrent conversations
 
 async def delayed_initiate_chat(agent, recipient, message):
 
@@ -321,23 +340,32 @@ async def delayed_initiate_chat(agent, recipient, message):
     # Wait for 2 seconds
     await asyncio.sleep(2)
 
-    # Now initiate the chat
-    await agent.a_initiate_chat(recipient, message=message)
+    # Issue #002 Fix: Add error handling for LM Studio connection
+    global conversation_lock
+    try:
+        # Now initiate the chat
+        await agent.a_initiate_chat(recipient, message=message)
+    except Exception as e:
+        print(f"Error connecting to LM Studio: {e}")
+        chat_interface.send("⚠️ AI service temporarily unavailable. Please ensure LM Studio is running and try again.", 
+                          user="System", respond=False)
+        initiate_chat_task_created = False  # Reset to allow retry
+    finally:
+        conversation_lock = False  # Always release lock
 
 async def callback(contents: str, user: str, instance: pn.chat.ChatInterface):
     
     global initiate_chat_task_created
     global input_future
+    global conversation_lock
 
-    '''
-    if not initiate_chat_task_created and FileUploader.uploaded_content != 'No file uploaded yet':
-        asyncio.create_task(delayed_initiate_chat(user_proxy, manager, contents))
-
-    
-    elif not initiate_chat_task_created and FileUploader.uploaded_content == 'No file uploaded yet':
-        asyncio.create_task(delayed_initiate_chat(user_proxy, manager, contents))
-    '''
+    # Issue #003 Fix: Check conversation lock before starting new chat
     if not initiate_chat_task_created and contents:
+        if conversation_lock:
+            chat_interface.send("⚠️ Please wait for the current conversation to complete.", 
+                              user="System", respond=False)
+            return
+        conversation_lock = True  # Set lock
         asyncio.create_task(delayed_initiate_chat(user_proxy, manager, contents))
 
     else:

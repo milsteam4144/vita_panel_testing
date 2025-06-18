@@ -12,19 +12,42 @@ Follow these steps to set up and run the Vita Panel Demo:
    cd vita-panel-demo
    ```
 
-2. **Set up the environment variable:**
+2. **Choose your AI model setup:**
 
+   **Option A: Local LM Studio (Recommended for MVP Demo)**
+   
+   1. Download and install [LM Studio](https://lmstudio.ai/)
+   2. Load a compatible model (e.g., Llama 3.1, Mistral, etc.)
+   3. Start the local server in LM Studio (default: http://localhost:1234)
+   4. Set environment variables:
+   
    For Linux/macOS:
    ```
+   export USE_LOCAL_MODEL=true
+   export LOCAL_MODEL_NAME="your-model-name"
+   export LOCAL_MODEL_URL="http://localhost:1234/v1"
+   ```
+
+   For Windows (Command Prompt):
+   ```
+   set USE_LOCAL_MODEL=true
+   set LOCAL_MODEL_NAME=your-model-name
+   set LOCAL_MODEL_URL=http://localhost:1234/v1
+   ```
+
+   **Option B: OpenAI API**
+   
+   For Linux/macOS:
+   ```
+   export USE_LOCAL_MODEL=false
    export OPENAI_API_KEY='your_api_key_here'
    ```
 
    For Windows (Command Prompt):
    ```
+   set USE_LOCAL_MODEL=false
    set OPENAI_API_KEY=your_api_key_here
    ```
-
-   Replace `your_api_key_here` with your actual OpenAI API key.
 
 3. **Install dependencies:**
    ```

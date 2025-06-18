@@ -172,11 +172,25 @@ print("Content of the uploaded file (initially):", uploader.file_content)
 
 os.environ["AUTOGEN_USE_DOCKER"] = "False"
 
-config_list = [
-    {
-        'model': 'gpt-4o',
-        'api_key': os.environ.get("OPENAI_API_KEY"),
-    }
+# Configuration for LM Studio (local) or OpenAI (cloud)
+USE_LOCAL_MODEL = os.environ.get("USE_LOCAL_MODEL", "True").lower() == "true"
+
+if USE_LOCAL_MODEL:
+    # LM Studio configuration (default local endpoint)
+    config_list = [
+        {
+            'model': os.environ.get("LOCAL_MODEL_NAME", "dolphin-2.1-mistral-7b"),
+            'base_url': os.environ.get("LOCAL_MODEL_URL", "http://localhost:1234/v1"),
+            'api_key': "lm-studio",  # LM Studio doesn't require a real API key
+        }
+    ]
+else:
+    # OpenAI configuration
+    config_list = [
+        {
+            'model': 'gpt-4o',
+            'api_key': os.environ.get("OPENAI_API_KEY"),
+        }
     ]
 gpt4_config = {"config_list": config_list, "temperature":0, "seed": 53}
 

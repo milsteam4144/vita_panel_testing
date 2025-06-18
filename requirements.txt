@@ -1,0 +1,25 @@
+# VITA Panel Demo Dependencies - 2025
+# Core application
+panel>=1.5.0,<2.0.0
+param>=2.1.0,<3.0.0
+
+# AI/ML Libraries (using ag2 - the evolution of autogen)
+ag2[openai]>=0.4.0,<1.0.0
+openai>=1.52.0,<2.0.0
+
+# Development and Testing
+pytest>=8.3.0,<9.0.0
+pytest-asyncio>=0.24.0,<1.0.0
+pytest-cov>=6.0.0,<7.0.0
+
+# Code Quality
+black>=24.10.0,<25.0.0
+flake8>=7.1.0,<8.0.0
+mypy>=1.13.0,<2.0.0
+isort>=5.13.0,<6.0.0
+
+# Environment Management
+python-dotenv>=1.0.0,<2.0.0
+
+# Optional: For containerization
+gunicorn>=23.0.0,<24.0.0
