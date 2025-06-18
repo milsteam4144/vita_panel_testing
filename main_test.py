@@ -89,7 +89,7 @@ def send_message(event):
     message = "Debug the uploaded code"
     #pretty_code = f"```python\n{test}\n```"
     # Assuming you have a function or method to send messages to the chat interface
-    if test is not "":
+    if test != "":
         #chat_interface.send(message + " " + pretty_code, user="Student", respond=True)
         chat_interface.send(message, user="Student", respond=False) #content, user (recepient of message), 
         chat_interface.send(f"```python\n{test}\n```", user="Student", respond=True)
