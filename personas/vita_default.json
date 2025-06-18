@@ -77,11 +77,37 @@
     "notes": "Works well with instruction-following models. Phi-4 mini shows good reasoning for educational explanations."
   },
   
+  "avatar_system": {
+    "base_character": "vita_teacher",
+    "expression_states": {
+      "neutral": "calm, professional demeanor",
+      "thinking": "focused analysis, slight concentration",
+      "explaining": "engaged teaching mode, open gestures",
+      "concerned": "sympathetic when finding errors",
+      "encouraging": "warm, supportive expression",
+      "focused": "deep concentration for complex problems"
+    },
+    "action_triggers": {
+      "tool_file_scan": "opens file with gentle scanning gesture",
+      "discovery_error": "points to problem area with concerned expression",
+      "discovery_solution": "encouraging nod or gentle pointing to solution path",
+      "user_greeting": "warm acknowledgment wave",
+      "session_end": "friendly farewell gesture",
+      "major_breakthrough": "pleased satisfaction expression"
+    },
+    "accessibility_features": {
+      "subtitle_style": "large, high-contrast text",
+      "gesture_redundancy": "all speech concepts reinforced with appropriate gestures",
+      "pacing": "measured, allows processing time",
+      "audio_description": "clear narration of visual elements"
+    }
+  },
+  
   "metadata": {
     "version": "1.0",
     "created_date": "2025-06-18",
     "author": "Agent Scully & Claude",
-    "description": "Default Vita persona for Python programming education",
-    "tags": ["education", "python", "debugging", "beginner-friendly"]
+    "description": "Default Vita persona for Python programming education with accessibility focus",
+    "tags": ["education", "python", "debugging", "beginner-friendly", "accessibility"]
   }
 }
