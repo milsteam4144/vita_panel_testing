@@ -54,26 +54,27 @@ class TestVitaCore:
     
     def test_configuration_local_model(self):
         """Test local model configuration"""
-        with patch.dict('os.environ', {'USE_LOCAL_MODEL': 'true'}):
-            from vita_core import VitaCore
-            
-            core = VitaCore()
-            config = core.config_list[0]
-            
-            assert 'base_url' in config
-            assert config['base_url'] == 'http://localhost:1234/v1'
-            assert 'dolphin' in config['model']
+        from vita_core import VitaCore
+        
+        # Test with default local model
+        core = VitaCore(persona_name="vita", model_name="dolphin-2.1-mistral-7b")
+        config = core.llm_config['config_list'][0]
+        
+        # Should use local configuration
+        assert 'base_url' in config
+        assert config['base_url'] == 'http://localhost:1234/v1'
+        assert 'dolphin' in config['model']
     
     def test_configuration_openai_model(self):
         """Test OpenAI model configuration"""
-        with patch.dict('os.environ', {'USE_LOCAL_MODEL': 'false', 'OPENAI_API_KEY': 'test-key'}):
-            from vita_core import VitaCore
-            
-            core = VitaCore()
-            config = core.config_list[0]
-            
-            assert config['model'] == 'gpt-4o'
-            assert config['api_key'] == 'test-key'
+        from vita_core import VitaCore
+        
+        # Test with OpenAI model
+        core = VitaCore(persona_name="vita", model_name="gpt-4o")
+        config = core.llm_config['config_list'][0]
+        
+        # Should use OpenAI configuration
+        assert config['model'] == 'gpt-4o'
 
 class TestConsoleDemo:
     """Test console demo functionality"""

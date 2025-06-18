@@ -12,8 +12,9 @@ from vita_core import VitaCore
 class VitaConsole:
     """Console interface for VITA"""
     
-    def __init__(self):
-        self.vita = VitaCore(message_callback=self.display_message)
+    def __init__(self, persona_name: str = "vita", model_name: str = "dolphin-2.1-mistral-7b"):
+        self.vita = VitaCore(message_callback=self.display_message, 
+                           persona_name=persona_name, model_name=model_name)
         self.user_input_future = None
         
         # Override the human input method for console
@@ -44,11 +45,14 @@ class VitaConsole:
             return "exit"
     
     def display_welcome(self):
-        """Display welcome message"""
+        """Display welcome message with persona info"""
+        display_info = self.vita.get_display_info()
         print("=" * 60)
-        print("🎓 VITA: Virtual Interactive Teaching Assistant")
+        print(f"🎓 {display_info['title']}")
         print("=" * 60)
         print("Console Demo Version")
+        print(f"Personality: {display_info['personality']}")
+        print(f"Description: {display_info['description']}")
         print("This demo uses the same core logic as the web version.")
         print("-" * 60)
     
@@ -185,15 +189,81 @@ class VitaConsole:
         else:
             print("❌ Invalid choice.")
 
+def select_persona_and_model():
+    """Interactive persona and model selection"""
+    from persona_manager import persona_manager
+    
+    print("🎭 VITA Persona & Model Selection")
+    print("=" * 40)
+    
+    # Show available personas
+    personas = persona_manager.list_personas()
+    print("Available Personas:")
+    for i, persona in enumerate(personas, 1):
+        info = persona_manager.get_persona(persona)
+        print(f"{i}. {info.display_name} - {info.personality}")
+    
+    # Select persona
+    while True:
+        try:
+            choice = input(f"\nSelect persona (1-{len(personas)}, or Enter for default): ").strip()
+            if not choice:
+                persona_name = "vita"
+                break
+            choice_idx = int(choice) - 1
+            if 0 <= choice_idx < len(personas):
+                persona_name = personas[choice_idx]
+                break
+            else:
+                print("Invalid choice. Please try again.")
+        except ValueError:
+            print("Please enter a number.")
+    
+    # Show available models
+    models = persona_manager.list_models()
+    print(f"\nAvailable Models:")
+    for i, model in enumerate(models, 1):
+        model_info = persona_manager.get_model(model)
+        print(f"{i}. {model} ({model_info.provider})")
+    
+    # Select model
+    while True:
+        try:
+            choice = input(f"\nSelect model (1-{len(models)}, or Enter for default): ").strip()
+            if not choice:
+                model_name = "dolphin-2.1-mistral-7b"
+                break
+            choice_idx = int(choice) - 1
+            if 0 <= choice_idx < len(models):
+                model_name = models[choice_idx]
+                break
+            else:
+                print("Invalid choice. Please try again.")
+        except ValueError:
+            print("Please enter a number.")
+    
+    return persona_name, model_name
+
 def main():
     """Main entry point"""
     # Set environment for local model by default
     if "USE_LOCAL_MODEL" not in os.environ:
         os.environ["USE_LOCAL_MODEL"] = "true"
     
-    console = VitaConsole()
+    # Check if we want interactive selection
+    if len(sys.argv) > 1 and sys.argv[1] == "--select":
+        persona_name, model_name = select_persona_and_model()
+    elif len(sys.argv) >= 3:
+        # Command line arguments: persona model
+        persona_name, model_name = sys.argv[1], sys.argv[2]
+    else:
+        # Default
+        persona_name, model_name = "vita", "dolphin-2.1-mistral-7b"
+    
+    print(f"\n🚀 Starting with {persona_name} using {model_name}")
     
     try:
+        console = VitaConsole(persona_name, model_name)
         asyncio.run(console.run_interactive())
     except KeyboardInterrupt:
         print("\n👋 Goodbye!")

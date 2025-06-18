@@ -1,52 +1,44 @@
 """
 VITA Core Logic - UI-agnostic agent orchestration
 Extracted from test.py for reusability in console and Panel versions
+Now supports persona system for different AI personalities and models
 """
 import os
 import asyncio
 import autogen
 from typing import Optional, Callable, List, Dict, Any
+from persona_manager import persona_manager, PersonaConfig
 
 class VitaCore:
     """Core VITA functionality without UI dependencies"""
     
-    def __init__(self, message_callback: Optional[Callable] = None):
+    def __init__(self, message_callback: Optional[Callable] = None, 
+                 persona_name: str = "vita", model_name: str = "dolphin-2.1-mistral-7b"):
         """
-        Initialize VITA core
+        Initialize VITA core with persona and model selection
         
         Args:
             message_callback: Function to call when agents send messages
                             Signature: callback(sender_name: str, content: str, avatar: str)
+            persona_name: Name of persona to use (default: "vita")
+            model_name: Name of model to use (default: "dolphin-2.1-mistral-7b")
         """
         self.message_callback = message_callback or self._default_message_callback
         self.conversation_active = False
         self.uploaded_file_content = ""
         
-        # Setup agents
-        self._setup_configuration()
+        # Load persona and model configuration
+        self.agent_config = persona_manager.create_agent_config(persona_name, model_name)
+        self.persona = self.agent_config["persona"]
+        self.model = self.agent_config["model"]
+        self.llm_config = self.agent_config["llm_config"]
+        
+        # Setup agents with persona
         self._setup_agents()
         
-    def _setup_configuration(self):
-        """Setup model configuration based on environment"""
-        use_local = os.environ.get("USE_LOCAL_MODEL", "true").lower() == "true"
-        
-        if use_local:
-            self.config_list = [{
-                'model': os.environ.get("LOCAL_MODEL_NAME", "dolphin-2.1-mistral-7b"),
-                'base_url': os.environ.get("LOCAL_MODEL_URL", "http://localhost:1234/v1"),
-                'api_key': "lm-studio",
-            }]
-        else:
-            self.config_list = [{
-                'model': 'gpt-4o',
-                'api_key': os.environ.get("OPENAI_API_KEY"),
-            }]
-            
-        self.llm_config = {
-            "config_list": self.config_list, 
-            "temperature": 0, 
-            "seed": 53
-        }
+    def get_display_info(self) -> Dict[str, str]:
+        """Get display information about current persona and model"""
+        return self.agent_config["display_info"]
         
     def _setup_agents(self):
         """Setup AutoGen agents"""
