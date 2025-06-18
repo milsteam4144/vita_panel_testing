@@ -148,6 +148,25 @@ class PersonaManager:
             max_tokens=500,
             provider="openai"
         )
+        
+        # Large local models for PRISM (experimental)
+        self.available_models["llama-3.1-70b"] = ModelConfig(
+            name="llama-3.1-70b-instruct",
+            base_url="http://localhost:1234/v1",
+            api_key="lm-studio",
+            temperature=0.1,
+            max_tokens=800,
+            provider="lmstudio"
+        )
+        
+        self.available_models["qwen2.5-72b"] = ModelConfig(
+            name="qwen2.5-72b-instruct",
+            base_url="http://localhost:1234/v1", 
+            api_key="lm-studio",
+            temperature=0.1,
+            max_tokens=800,
+            provider="lmstudio"
+        )
     
     def get_persona(self, persona_name: str = "vita") -> Optional[PersonaConfig]:
         """Get persona configuration by name"""
@@ -252,3 +271,11 @@ def get_default_config() -> Dict:
 def get_experimental_config() -> Dict:
     """Get experimental Vita configuration with phi-4 model"""
     return persona_manager.create_agent_config("vita", "phi-4-mini-reasoning")
+
+def get_prism_config(model_name: str = "llama-3.1-70b") -> Dict:
+    """Get PRISM configuration with large model (experimental)"""
+    return persona_manager.create_agent_config("prism", model_name)
+
+def get_prism_multiagent_config(model_name: str = "qwen2.5-72b") -> Dict:
+    """Get PRISM multi-agent configuration with large model (highly experimental)"""
+    return persona_manager.create_agent_config("prism_multiagent", model_name)

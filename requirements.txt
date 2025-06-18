@@ -1,6 +1,6 @@
 # VITA Panel Demo Dependencies - 2025
 # Core application
-panel>=1.5.0,<2.0.0
+panel>=1.4.0,<1.6.0
 param>=2.1.0,<3.0.0
 
 # AI/ML Libraries (using ag2 - the evolution of autogen)
