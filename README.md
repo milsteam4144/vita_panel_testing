@@ -17,17 +17,15 @@ Follow these steps to set up and run the Vita Panel Demo:
 
 2. **Set up the environment variable:**
 
-   For Linux/macOS:
-   ```
-   export OPENAI_API_KEY='your_api_key_here'
-   ```
+   On a Windows machine, in the Windows search bar, search for "Edit the system environment variables
+   Add User environment variables
 
-   For Windows (Command Prompt):
-   ```
-   set OPENAI_API_KEY=your_api_key_here
-   ```
+   In a Github codespace, open a terminal and enter the environment variables using the Linux commands:
+   export GITHUB_CLIENT_ID=""
+   export GITHUB_CLIENT_SECRET=""
 
-   Replace `your_api_key_here` with your actual OpenAI API key.
+
+   
 
 3. **Install dependencies:**
    ```
