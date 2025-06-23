@@ -172,13 +172,21 @@ print("Content of the uploaded file (initially):", uploader.file_content)
 
 os.environ["AUTOGEN_USE_DOCKER"] = "False"
 
+# Which open-source model will we use
 config_list = [
     {
-        'model': 'gpt-4o',
-        'api_key': os.environ.get("OPENAI_API_KEY"),
+        "model": "lmstudio-community/qwen2.5-7b-instruct",  # This one works!
+        "base_url": "http://localhost:1234/v1",
+        "api_key": "lm-studio",
+        "api_type": "open_ai",
     }
-    ]
-gpt4_config = {"config_list": config_list, "temperature":0, "seed": 53}
+]
+
+gpt4_config = {
+    "config_list": config_list,
+    "temperature": 0,
+    "seed": 53
+}
 
 input_future = None
 
@@ -213,7 +221,7 @@ user_proxy = MyConversableAgent(
    code_execution_config=False,
    #default_auto_reply="Approved", 
    human_input_mode="ALWAYS",
-   #llm_config=gpt4_config,
+   llm_config=False,
 )
 
 # This agent is currently not being used in the group_chat. It is for testing.
