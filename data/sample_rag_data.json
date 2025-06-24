@@ -1,0 +1,32 @@
+[
+  {
+    "assignment_id": "syntax_001",
+    "code_snippet": "def greet_user()\n    name = input('What is your name? ')\n    print('Hello, ' + name + '!')",
+    "student_question": "Why am I getting a syntax error on the first line of my function?",
+    "teacher_response": "You're missing a colon (:) at the end of your function definition. In Python, function definitions must end with a colon. Change 'def greet_user()' to 'def greet_user():'. The colon tells Python that you're about to start the function body."
+  },
+  {
+    "assignment_id": "variables_002", 
+    "code_snippet": "user age = 25\nprint('The user is', user age, 'years old')",
+    "student_question": "I'm getting an error when I try to create a variable called 'user age'. What's wrong?",
+    "teacher_response": "Variable names in Python cannot contain spaces. You need to use underscores or camelCase instead. Change 'user age' to 'user_age' or 'userAge'. So your code should be: 'user_age = 25' and 'print('The user is', user_age, 'years old')'. Python variable names must be written as one continuous word."
+  },
+  {
+    "assignment_id": "loops_003",
+    "code_snippet": "numbers = [1, 2, 3, 4, 5]\nfor i in numbers:\n    if i % 2 == 0:\n        print(i, 'is even')\n    else:\n        print(i, 'is odd')\n        break",
+    "student_question": "My loop is supposed to check all numbers, but it stops after printing the first odd number. Why?",
+    "teacher_response": "The 'break' statement exits the entire loop, not just the current iteration. In your code, when the loop finds the first odd number (1), it prints '1 is odd' and then breaks out of the loop completely. Remove the 'break' statement if you want to check all numbers. Use 'continue' instead if you want to skip to the next iteration, or remove it entirely to process all numbers."
+  },
+  {
+    "assignment_id": "functions_004",
+    "code_snippet": "def calculate_area(length, width)\n    area = length * width\n    return area\n\nresult = calculate_area(5, 3)\nprint('Area is:', result)",
+    "student_question": "My function won't work and I keep getting a syntax error. The logic seems right to me.",
+    "teacher_response": "You're missing a colon (:) at the end of your function definition. The first line should be 'def calculate_area(length, width):' with a colon at the end. Python requires a colon after function definitions, class definitions, if statements, loops, and other compound statements to indicate the start of an indented code block."
+  },
+  {
+    "assignment_id": "strings_005",
+    "code_snippet": "name = 'Alice'\nage = 23\nmessage = 'Hello, my name is ' + name + ' and I am ' + age + ' years old.'\nprint(message)",
+    "student_question": "I'm trying to create a message with a person's name and age, but I get an error about concatenating strings and integers.",
+    "teacher_response": "You cannot directly concatenate strings and integers in Python. You need to convert the integer 'age' to a string first. Change the line to: 'message = 'Hello, my name is ' + name + ' and I am ' + str(age) + ' years old.'' Or better yet, use an f-string: 'message = f'Hello, my name is {name} and I am {age} years old.'' The f-string approach is more readable and handles type conversion automatically."
+  }
+]
