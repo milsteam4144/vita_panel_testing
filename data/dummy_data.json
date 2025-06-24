@@ -1,0 +1,64 @@
+{
+  "interactions": [
+    {
+      "assignment_id": "intro_001_loops",
+      "code_snippet": "for i in range(5)\n    print(i)",
+      "student_prompt": "My for loop isn't working. I keep getting a syntax error and I don't know why.",
+      "teacher_response": "I can see you're working with a for loop - that's great! Let's look at this step by step. In Python, what do you think might be missing at the end of your for loop line? Take a look at the structure of control statements you've learned about."
+    },
+    {
+      "assignment_id": "intro_002_variables",
+      "code_snippet": "name = input(\"What's your name? \")\nprint(\"Hello, \" name)",
+      "student_prompt": "I'm trying to ask for someone's name and then greet them, but I'm getting an error when I try to print.",
+      "teacher_response": "Nice work getting user input! You're on the right track with collecting the name. Now, when you want to combine text with a variable in a print statement, what operator do you think Python needs to join them together? Think about how you might 'add' strings together."
+    },
+    {
+      "assignment_id": "intro_003_conditionals",
+      "code_snippet": "age = int(input(\"Enter your age: \"))\nif age >= 18\n    print(\"You can vote!\")\nelse\n    print(\"You cannot vote yet.\")",
+      "student_prompt": "I'm trying to check if someone can vote based on their age, but Python says there's a syntax error. What am I doing wrong?",
+      "teacher_response": "Great job thinking about conditional logic! Your if-else structure is exactly right conceptually. In Python, there's something special you need to add at the end of both your 'if' and 'else' lines. What punctuation mark tells Python that you're about to start a new block of code?"
+    },
+    {
+      "assignment_id": "intro_004_lists",
+      "code_snippet": "fruits = [\"apple\", \"banana\", \"cherry\"]\nprint(fruits[3])",
+      "student_prompt": "I created a list of fruits and I'm trying to print the last fruit, but I'm getting an IndexError. Why isn't this working?",
+      "teacher_response": "Excellent work creating your list! Lists are super useful. Now, here's something important about how Python counts: when you have 3 items in a list, what numbers do you think Python uses to identify each position? Remember, Python likes to start counting from a special number!"
+    },
+    {
+      "assignment_id": "intro_005_functions",
+      "code_snippet": "def greet_person(name):\nprint(f\"Hello, {name}!\")\n\ngreet_person(\"Alice\")",
+      "student_prompt": "I'm trying to write a function to greet someone, but when I run it, nothing seems to be properly formatted. The function runs but something looks off.",
+      "teacher_response": "Functions are fantastic for organizing code! I can see you understand the concept well. Let's look at the structure of your function. In Python, how do you think the code inside a function should be positioned relative to the 'def' line? What makes Python understand which lines belong to the function?"
+    },
+    {
+      "assignment_id": "intro_006_while_loops",
+      "code_snippet": "count = 0\nwhile count < 5\n    print(count)\n    count = count + 1",
+      "student_prompt": "I want to print numbers 0 through 4 using a while loop, but I'm getting a syntax error. Can you help me figure out what's wrong?",
+      "teacher_response": "While loops are great for repetitive tasks! You've got the logic perfect - initializing count, checking the condition, printing, and incrementing. There's just one small syntax detail missing. What do you think Python needs at the end of your while statement to know that a code block is about to begin?"
+    },
+    {
+      "assignment_id": "intro_007_dictionaries",
+      "code_snippet": "student = {\"name\": \"John\", \"age\": 20, \"grade\": \"A\"}\nprint(student[name])",
+      "student_prompt": "I created a dictionary to store student information, but when I try to print the name, I get a NameError. What's going wrong?",
+      "teacher_response": "Dictionaries are excellent for storing related information! You've structured your dictionary perfectly. When you want to access a value in a dictionary, think about how Python knows you're referring to a key versus a variable. What's the difference between a string and a variable name in Python?"
+    },
+    {
+      "assignment_id": "intro_008_string_methods",
+      "code_snippet": "message = \"hello world\"\nprint(message.capitalize)\nprint(message.upper)",
+      "student_prompt": "I'm trying to use string methods to change the case of my text, but instead of getting the modified text, I'm seeing weird output about method objects.",
+      "teacher_response": "String methods are really powerful tools! You've identified the right methods to use. The thing is, when you want to actually use a method in Python, what do you think you need to add after the method name to tell Python to execute it? Think about how you call functions."
+    },
+    {
+      "assignment_id": "intro_009_list_methods",
+      "code_snippet": "numbers = [1, 2, 3]\nnumbers.append(4)\nprint(numbers)\nnumbers.remove(5)\nprint(numbers)",
+      "student_prompt": "I'm adding a number to my list, which works fine, but then when I try to remove a number that I think should be there, I get a ValueError. Why is this happening?",
+      "teacher_response": "Great work using list methods! The append() method worked perfectly as you can see. Now, let's think carefully about the remove() method. What number are you trying to remove, and is that number actually in your list? Sometimes it helps to print the list and double-check what's actually inside it."
+    },
+    {
+      "assignment_id": "intro_010_file_handling",
+      "code_snippet": "file = open(\"data.txt\", \"r\")\ncontent = file.read()\nprint(content)",
+      "student_prompt": "I'm trying to read from a file, but I've heard that I should be doing something to properly close the file. Is my code correct, or is there a better way?",
+      "teacher_response": "You're absolutely right to think about properly closing files - that shows great programming awareness! Your code will work, but there's a more elegant and safer way to handle files in Python. Have you learned about the 'with' statement yet? It's like having Python automatically clean up after itself. What do you think might happen if your program crashes before reaching a file.close() statement?"
+    }
+  ]
+}
