@@ -1,4 +1,8 @@
-# panel serve oauth_test2.py --port 8501 --allow-websocket-origin=localhost:8501 --show --dev
+# To run locally:panel serve oauth_test2.py --port 8501 --allow-websocket-origin=localhost:8501 --show --dev
+
+# To run in Github Codespace: panel serve oauth_test2.py --allow-websocket-origin=<your-codespace-name>-8501.app.github.dev
+
+# To run no matter what: panel serve oauth_test2.py --allow-websocket-origin=*
 
 import panel as pn
 import autogen
@@ -15,25 +19,32 @@ import urllib.parse
 import base64
 
 
-import base64
 
-def fetch_avatar_as_base64(url):
-    """Convert GitHub avatar URL to base64-encoded image string."""
+
+def get_dynamic_redirect_uri(path="/oauth_test2"):
     try:
-        response = requests.get(url)
-        response.raise_for_status()
-        b64 = base64.b64encode(response.content).decode("utf-8")
-        return f"data:image/png;base64,{b64}"
-    except Exception as e:
-        print(f"⚠️ Failed to fetch avatar as base64: {e}")
-        return "👨‍🎓"  # fallback emoji
+        if pn.state.location and pn.state.location.origin:
+            return pn.state.location.origin + path
+    except Exception:
+        pass
+    return "http://localhost:8501" + path
+
+
 
     
 
 # GitHub OAuth Configuration
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
-REDIRECT_URI = "http://localhost:8501/oauth_test2"
+REDIRECT_URI = get_dynamic_redirect_uri()
+'''
+This code is to perhaps replace the REDIRECT_URI above:
+if hasattr(pn.state.location, "origin") and pn.state.location.origin:
+    REDIRECT_URI = pn.state.location.origin + "/oauth_test2"
+else:
+    REDIRECT_URI = os.getenv("OAUTH_REDIRECT_URI") or "http://localhost:8501/oauth_test2"
+'''
+
 
 # OAuth endpoints for GitHub
 AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
@@ -84,37 +95,43 @@ body {
 
 pn.extension(raw_css=[css])
 
+
+
+
 # Global variables
 test = ""
 input_future = None
 initiate_chat_task_created = False
 
 class GitHubAuth:
+
     @staticmethod
     def get_authorization_url():
-        print(f"DEBUG: CLIENT_ID = {CLIENT_ID}")
-        print(f"DEBUG: REDIRECT_URI = {REDIRECT_URI}")
-        session = OAuth2Session(CLIENT_ID, redirect_uri=REDIRECT_URI, scope='user:email')
+        redirect_uri = get_dynamic_redirect_uri()
+        print(f"🔁 Using redirect URI in login: {redirect_uri}")
+        session = OAuth2Session(CLIENT_ID, redirect_uri=redirect_uri, scope='user:email')
         uri, state = session.create_authorization_url(AUTHORIZE_URL)
-        print(f"DEBUG: Generated OAuth URL = {uri}")
-        print("*** ABOUT TO REDIRECT TO GITHUB ***")  # Add this line
         pn.state.cache['oauth_state'] = state
         return uri
     
+
     @staticmethod
     def fetch_user_info(code, state):
-        """Exchange code for user info"""
+        redirect_uri = get_dynamic_redirect_uri()
+        print(f"🔁 Using redirect URI in token exchange: {redirect_uri}")
         try:
-            session = OAuth2Session(CLIENT_ID, CLIENT_SECRET, redirect_uri=REDIRECT_URI)
+            session = OAuth2Session(CLIENT_ID, CLIENT_SECRET, redirect_uri=redirect_uri)
             token = session.fetch_token(TOKEN_URL, code=code)
             session.token = token
             resp = session.get(USER_API_URL)
-            return resp.json()
-            print("✅ Full GitHub user info:", resp.json())
-
+            user_info = resp.json()
+            return user_info
         except Exception as e:
             print(f"OAuth error: {e}")
             return None
+
+
+
 
 class AuthenticatedVITA(param.Parameterized):
     user_info = param.Dict(default={})
@@ -152,6 +169,7 @@ class AuthenticatedVITA(param.Parameterized):
                         self.user_info = user_info
                         self.is_logged_in = True
                         self.callback_stopped = True
+                        pn.state.location.replace(pn.state.location.pathname)  # Clears ?code=... from URL
                         
                         print(f"✅ Login successful: {user_info.get('login')}")
                         
@@ -170,57 +188,49 @@ class AuthenticatedVITA(param.Parameterized):
         except Exception as e:
             print(f"❌ Callback error: {e}")
     
-    def login_view(self):
-        """Login screen"""
-        auth_url = GitHubAuth.get_authorization_url()
-        
-        # Add JavaScript to help detect OAuth callback
-        callback_detector = pn.pane.HTML("""
-            <script>
-            // Check for OAuth parameters on page load
-            window.addEventListener('load', function() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const code = urlParams.get('code');
-                if (code) {
-                    console.log('OAuth callback detected by JavaScript:', code.substring(0, 10) + '...');
-                    // Trigger a Panel event or refresh
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 1000);
-                }
-            });
-            </script>
-        """)
-        
-        login_content = pn.Column(
-            callback_detector,  # Add the JavaScript detector
-            pn.pane.Markdown("# 🔐 Login to VITA"),
-            pn.pane.Markdown("Please log in with your GitHub account to continue."),
-            pn.pane.HTML(f'''
-                <div class="login-container">
-                    <h3>Welcome to VITA!</h3>
-                    <p>Your Virtual Interactive Teaching Assistant</p>
-                    <a href="{auth_url}" style="
-                        display: inline-block;
-                        padding: 12px 24px;
-                        background-color: #24292e;
-                        color: white;
-                        text-decoration: none;
-                        border-radius: 6px;
-                        font-weight: bold;
-                        margin: 20px 0;
-                    ">🔐 Login with GitHub</a>
-                    <p><small>You'll be redirected to GitHub to authorize this app</small></p>
-                    <div id="debug-info">
-                        <p><small>Debug info:</small></p>
-                        <p><small>Login status: {self.is_logged_in}</small></p>
-                        <p><small>User info: {bool(self.user_info)}</small></p>
+        def login_view(self):
+            """Login screen"""
+            try:
+                origin = pn.state.location.origin
+                if not origin:
+                    raise ValueError("origin is None")
+            except Exception:
+                # Still initializing, show a loading message
+                return pn.Column(
+                    pn.pane.Markdown("⏳ Loading app... Please wait a second and refresh if needed."),
+                    height=300,
+                    width=400,
+                    align='center'
+                )
+
+            # Now safe to proceed with generating auth URL
+            auth_url = GitHubAuth.get_authorization_url()
+
+            login_content = pn.Column(
+                pn.pane.Markdown("# 🔐 Login to VITA"),
+                pn.pane.Markdown("Please log in with your GitHub account to continue."),
+                pn.pane.HTML(f'''
+                    <div class="login-container">
+                        <h3>Welcome to VITA!</h3>
+                        <p>Your Virtual Interactive Teaching Assistant</p>
+                        <a href="{auth_url}" style="
+                            display: inline-block;
+                            padding: 12px 24px;
+                            background-color: #24292e;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 6px;
+                            font-weight: bold;
+                            margin: 20px 0;
+                        ">🔐 Login with GitHub</a>
+                        <p><small>You'll be redirected to GitHub to authorize this app</small></p>
                     </div>
-                </div>
-            '''),
-            sizing_mode='stretch_width'
-        )
-        return login_content
+                '''),
+                sizing_mode='stretch_width'
+            )
+            return login_content
+
+
     
     def user_header(self):
         """User info header"""
