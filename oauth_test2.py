@@ -28,12 +28,54 @@ def fetch_avatar_as_base64(url):
         print(f"⚠️ Failed to fetch avatar as base64: {e}")
         return "👨‍🎓"  # fallback emoji
 
+def get_dynamic_redirect_uri(path=""):
+    """
+    Generate dynamic redirect URI based on environment and Panel state.
+    
+    Logic:
+    1. If CODESPACES_PROXY_DOMAIN environment variable is set, use it
+    2. If Panel's pn.state.location is available, use its protocol, hostname, and port
+    3. Otherwise, fallback to http://localhost:8501
+    
+    Args:
+        path (str): Path to append to the base URI (should start with / if not empty)
+    
+    Returns:
+        str: The complete redirect URI
+    """
+    # Check for Codespaces environment
+    codespaces_domain = os.getenv("CODESPACES_PROXY_DOMAIN")
+    if codespaces_domain:
+        # Codespaces always uses HTTPS
+        return f"https://{codespaces_domain}{path}"
+    
+    # Try to use Panel's state location if available
+    try:
+        if hasattr(pn, 'state') and hasattr(pn.state, 'location') and pn.state.location:
+            location = pn.state.location
+            if hasattr(location, 'protocol') and hasattr(location, 'hostname'):
+                protocol = location.protocol.rstrip(':')  # Remove trailing colon if present
+                hostname = location.hostname
+                
+                # Construct base URL
+                if hasattr(location, 'port') and location.port:
+                    base_url = f"{protocol}://{hostname}:{location.port}"
+                else:
+                    base_url = f"{protocol}://{hostname}"
+                
+                return f"{base_url}{path}"
+    except Exception as e:
+        print(f"Warning: Could not access Panel state for redirect URI: {e}")
+    
+    # Fallback to localhost
+    return f"http://localhost:8501{path}"
+
     
 
 # GitHub OAuth Configuration
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
-REDIRECT_URI = "http://localhost:8501/oauth_test2"
+REDIRECT_URI = get_dynamic_redirect_uri("/oauth_test2")
 
 # OAuth endpoints for GitHub
 AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
