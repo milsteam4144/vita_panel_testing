@@ -49,3 +49,7 @@ Follow these steps to set up and run the Vita Panel Demo:
 
 For any issues or questions, please open an issue in the GitHub repository.
 
+## RAG 
+- for the backend rag stuff im using flask, json, sentence transformers, numpy, and faiss
+-Had to make a virtual enviroment called env
+- the file is rag_backend.py
