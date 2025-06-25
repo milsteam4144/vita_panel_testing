@@ -1,0 +1,18 @@
+{
+  "name": "claude-conduit",
+  "version": "1.0.0",
+  "description": "VIBE-powered bridge connecting Claude Code to MCP servers",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js --dev",
+    "fortune": "node -e \"const {displayStartupFortune} = require('./claude-conduit-fortunes'); displayStartupFortune();\""
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "@modelcontextprotocol/sdk": "^0.4.0"
+  },
+  "keywords": ["mcp", "claude", "bridge", "vibe", "flow"],
+  "author": "teacherbot.help posse",
+  "license": "MIT"
+}
