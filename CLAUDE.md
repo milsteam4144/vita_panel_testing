@@ -66,6 +66,20 @@ panel serve test.py --port 5007
 panel serve test.py --show
 ```
 
+### Git Flow Management
+```bash
+# Use stash to maintain flow when switching contexts
+git stash                    # Save current work without committing
+git stash pop               # Restore stashed changes
+git stash list              # View all stashes
+
+# Create cozy branches for safe experimentation
+git checkout -b feature/cozy-experiment
+git push -u origin feature/cozy-experiment
+```
+
+**FLOW Principle**: Both `git stash` and cozy branches preserve your flow when context switching is necessary. Stash for quick switches, cozy branches for longer experiments.
+
 ## Environment Setup
 
 Required environment variables:
@@ -114,3 +128,189 @@ Dependencies:
 
 ## MVP Demo Readiness
 The application is now stable for demo purposes with proper error handling and agent orchestration fixes.
+
+## claude-conduit MCP Bridge Integration
+
+### Enhanced AI Capabilities
+
+VITA development is enhanced through **claude-conduit**, an HTTP bridge that connects Claude Code to Model Context Protocol (MCP) servers, providing advanced AI tooling capabilities that persist across sessions.
+
+#### Available MCP Servers
+
+**taskmaster-ai** - Advanced task planning and management:
+```bash
+# Example usage through claude-conduit
+POST http://localhost:3001/execute/taskmaster-ai/create_project
+{
+  "name": "VITA Enhancement Sprint",
+  "description": "Multi-agent debugging system",
+  "subtasks": 5,
+  "methodology": "FLOW"
+}
+```
+
+**filesystem** - Enhanced file operations:
+```bash
+# Cross-repository analysis
+POST http://localhost:3001/execute/filesystem/analyze_codebase
+{
+  "path": "/workspace",
+  "pattern": "*.py",
+  "analysis": "educational_patterns"
+}
+```
+
+**scout** - Advanced search and context:
+```bash
+# Research educational patterns
+POST http://localhost:3001/execute/scout/research
+{
+  "query": "error handling patterns for students",
+  "context": "educational"
+}
+```
+
+**cloud-memory** - Persistent project context:
+```bash
+# Store/retrieve project knowledge across sessions
+POST https://csi-prism-remote-mcp-production.up.railway.app/store
+{
+  "path": "vita/project_context",
+  "data": {"current_phase": "VERIFY", "methodology": "FLOW"}
+}
+```
+
+### Advanced Workflows
+
+#### Devil's Advocate Analysis
+Spawn skeptical agents to challenge assumptions and verify critical information:
+```bash
+POST /execute/taskmaster-ai/spawn_devil_advocate
+{
+  "assumption": "This code pattern helps student learning",
+  "context": "VITA educational framework",
+  "evidence_required": ["research", "user_feedback", "metrics"]
+}
+```
+
+#### Enhanced Code Review
+Multi-agent collaboration for educational code review:
+- Security and best practices analysis
+- Educational value assessment
+- SOLID principles verification
+- Learning progression evaluation
+
+#### FLOW Methodology Automation
+- **LEARN**: Research educational context through scout
+- **UNDERSTAND**: Devil's advocate challenges assumptions
+- **PLAN**: taskmaster-ai generates structured breakdowns
+- **EXECUTE**: Guided implementation with MCP tools
+- **VERIFY**: Multi-agent validation and testing
+- **DOCUMENT**: Automated knowledge capture to cloud memory
+
+### VIBE System Integration
+
+**VIBE** (Verify, and Inspirational Behaviors Emerge) - The principle that clear, documented processes become automatic teaching moments. When you verify your work transparently, others learn by watching.
+
+#### VIBE Fortune System
+claude-conduit includes an educational fortune system with 45+ fortunes covering:
+- FLOW methodology principles
+- SAFE framework guidance
+- SOLID programming principles
+- Agile development practices
+- Embedded learning commands ("Notice how...", "Feel the...", "Watch yourself...")
+
+Access random educational wisdom:
+```bash
+GET http://localhost:3001/fortune
+```
+
+### Setup and Configuration
+
+#### Starting claude-conduit
+```bash
+# Navigate to claude-conduit directory
+cd claude-conduit
+
+# Install dependencies
+npm install
+
+# Start the bridge server
+npm start
+
+# Verify health
+curl http://localhost:3001/health
+```
+
+#### MCP Server Configuration
+claude-conduit reads from your MCP configuration file:
+```bash
+# Default config location
+~/.config/claude/claude_desktop_config.json
+```
+
+#### Environment Variables
+```bash
+# Required for enhanced capabilities
+export ANTHROPIC_API_KEY="sk-ant-api03-..."
+export MCP_CONFIG_PATH="~/.config/claude/claude_desktop_config.json"
+
+# Optional
+export CONDUIT_PORT="3001"
+export LOG_LEVEL="info"
+```
+
+### Cloud Memory Persistence
+
+#### Railway App Integration
+- **Endpoint**: https://csi-prism-remote-mcp-production.up.railway.app/
+- **Purpose**: Persistent project memory across sessions
+- **Backend**: Supabase database for reliable storage
+- **Features**: Hierarchical paths, JSON content, bulk operations
+
+#### Persistent Context
+The cloud memory server retains:
+- Project learning objectives and methodology decisions
+- FLOW phase progress and completion status
+- Educational framework choices and rationale
+- Code review insights and pattern recognition
+- Student progression and learning analytics
+
+### Troubleshooting
+
+#### Connection Issues
+```bash
+# Test claude-conduit connectivity
+curl http://localhost:3001/health
+
+# Check MCP server status
+curl http://localhost:3001/tools
+
+# Verify cloud memory access
+curl https://csi-prism-remote-mcp-production.up.railway.app/health
+```
+
+#### Common Problems
+- **Port conflicts**: Change CONDUIT_PORT environment variable
+- **MCP config not found**: Verify MCP_CONFIG_PATH points to valid config
+- **Authentication errors**: Check ANTHROPIC_API_KEY is set correctly
+- **Cloud memory timeouts**: Railway app may be sleeping, retry request
+
+### Educational Philosophy Integration
+
+#### FLOW Methodology (Following Logical Work Order)
+VITA development follows FLOW principles enhanced by MCP capabilities:
+1. **LEARN** - Use scout for educational research
+2. **UNDERSTAND** - Devil's advocate challenges assumptions  
+3. **PLAN** - taskmaster-ai creates structured approaches
+4. **EXECUTE** - Enhanced tools guide implementation
+5. **VERIFY** - Multi-agent validation processes
+6. **DOCUMENT** - Cloud memory preserves knowledge
+
+#### SAFE Framework (Scaled Agile Framework for Education)
+- **Structure** that serves learning through organized MCP workflows
+- **Always** creating better outcomes with enhanced AI tooling
+- **Frees** creative potential through automated task management
+- **Excellence** becomes inevitable through persistent memory and iteration
+
+The enhanced AI capabilities demonstrate that when you **Verify, and Inspirational Behaviors Emerge** - transparent use of advanced tools becomes a teaching moment for students and team members observing the development process.
