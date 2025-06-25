@@ -102,7 +102,18 @@ Plan your learning intentionally... or let chaos plan it for you.
 **S** - *Structure* that serves your learning  
 **A** - *Always* creating better educational outcomes  
 **F** - *Frees* your creative and intellectual potential  
-**E** - *Excellence* becomes inevitable through consistent practice  
+**E** - *Excellence* becomes inevitable through consistent practice
+
+### LLAMA: How We Build AI Learning Systems
+
+**Tired Alpacas Mix Tea** (Task Answers Models Tools)
+
+**T** - *Task* definition and clarity (what needs to be learned)  
+**A** - *Answers* and responses that guide learning  
+**M** - *Models* that understand and adapt to student needs  
+**T** - *Tools* that support the learning process  
+
+*The metaphor:* You gotta make the tea right so the llama wakes up on the right side of the bed - proper preparation creates optimal learning conditions.  
 
 ### The Learning Assembly Line
 Consider your education as a well-designed system where each component strengthens the others:
