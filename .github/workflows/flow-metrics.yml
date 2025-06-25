@@ -1,0 +1,42 @@
+name: FLOW Metrics Collection
+
+on:
+  issues:
+    types: [opened, closed, labeled, unlabeled]
+  pull_request:
+    types: [opened, closed, review_requested, review_request_removed]
+  workflow_dispatch:
+
+jobs:
+  collect-metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Calculate Cycle Time
+        if: github.event.issue.state == 'closed' || github.event.pull_request.state == 'closed'
+        run: |
+          echo "Calculating cycle time for ${{ github.event.issue.number || github.event.pull_request.number }}"
+          # Add cycle time calculation logic here
+
+      - name: Update FLOW Dashboard
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Update metrics in project board or external dashboard
+          echo "Updating FLOW metrics..."
+
+      - name: Check WIP Limits
+        run: |
+          # Check if WIP limits are exceeded
+          echo "Checking Work In Progress limits..."
+
+      - name: Generate FLOW Report
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          echo "## FLOW Metrics Report"
+          echo "- Average Cycle Time: X days"
+          echo "- Average Lead Time: X days"
+          echo "- Flow Efficiency: X%"
+          echo "- WIP Count: X items"

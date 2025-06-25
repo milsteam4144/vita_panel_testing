@@ -114,3 +114,34 @@ Dependencies:
 
 ## MVP Demo Readiness
 The application is now stable for demo purposes with proper error handling and agent orchestration fixes.
+
+## Educational Framework Integration
+
+### FLOW Methodology (Following Logical Work Order)
+VITA now implements FLOW methodology for educational purposes:
+1. **LEARN** - Understand concepts and requirements
+2. **UNDERSTAND** - Process and internalize information  
+3. **PLAN** - Design approach step-by-step
+4. **EXECUTE** - Implement following the plan
+5. **VERIFY** - Test and validate results
+6. **DOCUMENT** - Capture knowledge for future use
+
+### SAFE Framework (Scaled Agile Framework for Education)
+Educational adaptation of SAFe principles:
+- **Structure** that serves learning
+- **Always** creating better outcomes  
+- **Frees** creative potential
+- **Excellence** becomes inevitable
+
+### Three-Session Learning Structure
+Each major learning activity follows three distinct sessions:
+1. **Discovery & Planning** (🟢 Green Light) - Collaborative exploration
+2. **Design & Review** (🟡 Yellow Light) - Structured planning with feedback
+3. **Deep Work Implementation** (🔴 Red Light) - Protected focus time
+
+### Task Management
+Current project tasks are tracked in `/tasks.md` with GitHub integration for proper FLOW methodology implementation. See:
+- [Three-Session Workflow Guide](./vita-project/docs/three-session-workflow.md)
+- [FOCUS System for Students](./vita-project/docs/focus-system-for-students.md)
+- [GitHub Workflow Guide](./docs/github-workflow-guide.md)
+- [Why FLOW Works](./vita-project/docs/why-flow-works.md)
