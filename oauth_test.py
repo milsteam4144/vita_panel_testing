@@ -14,7 +14,26 @@ import urllib.parse
 # GitHub OAuth Configuration
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
-REDIRECT_URI = "http://localhost:8501"  # Panel's default port - no specific path needed
+
+def get_redirect_uri(port=8501, path=""):
+    """
+    Generate appropriate redirect URI based on environment.
+    Returns localhost for local development, Codespaces URL for GitHub Codespaces.
+    """
+    # Check if running in GitHub Codespaces
+    codespace_name = os.getenv("CODESPACE_NAME")
+    codespaces_domain = os.getenv("GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN")
+    
+    if codespace_name and codespaces_domain:
+        # Running in GitHub Codespaces
+        base_url = f"https://{codespace_name}-{port}.{codespaces_domain}"
+    else:
+        # Running locally
+        base_url = f"http://localhost:{port}"
+    
+    return f"{base_url}{path}"
+
+REDIRECT_URI = get_redirect_uri()  # Panel's default port - dynamically set based on environment
 
 # OAuth endpoints for GitHub
 AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
