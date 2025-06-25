@@ -1,0 +1,42 @@
+.bk.chat-message-content {
+    color: white !important;
+}
+
+body {
+    background-color: #f1b825;
+    margin: 0;
+    padding: 0;
+}
+
+.bk-input {
+    background-color: white !important;
+}
+
+.no-margin {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.code_bg {
+    background: rgb(38, 50, 56);
+}
+
+.login-container {
+    text-align: center;
+    padding: 50px;
+    background: white;
+    border-radius: 10px;
+    margin: 50px auto;
+    max-width: 400px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+    background: white;
+    border-radius: 5px;
+    margin: 5px 0;
+}
