@@ -7,8 +7,8 @@ const FORTUNES = [
   { "claude-conduit": { "creative_structure": "Structure enables creativity - your framework is your freedom", "paradox": true }},
   { "claude-conduit": { "teaching_moment": "If you just learned it, they will too - model the process", "meta": "learning" }},
   
-  // VIBE - Validating Inspirational Backend Encouragement  
-  { "claude-conduit": { "vibe_check": "You're already doing it", "VIBE": "Validating Inspirational Backend Encouragement", "confidence": "deserved" }},
+  // VIBE - Verify, and Inspirational Behaviors Emerge  
+  { "claude-conduit": { "vibe_check": "You're already doing it", "VIBE": "Verify, and Inspirational Behaviors Emerge", "confidence": "deserved" }},
   { "claude-conduit": { "good_vibes": "Notice how your skills keep improving", "validation": "automatic", "growth": "happening" }},
   { "claude-conduit": { "vibe_mode": "Your code becomes cleaner as you trust the process", "inspiration": "flowing", "backend": "supporting" }},
   { "claude-conduit": { "pure_vibe": "Who's a good girl?", "encouragement": "canine_level", "tail_wagging": true }},

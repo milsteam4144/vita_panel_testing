@@ -10,7 +10,7 @@ claude-conduit is a lightweight HTTP bridge that enables Claude Code CLI to acce
 
 ### VIBE System
 
-**VIBE** (Validating Inspirational Backend Encouragement) delivers randomized educational fortunes on startup, combining:
+**VIBE** (Verify, and Inspirational Behaviors Emerge) delivers randomized educational fortunes on startup, combining:
 - **Technical wisdom** (SOLID, Agile, FLOW principles)
 - **Embedded NLP commands** ("Notice how...", "Feel the...")
 - **Community encouragement** (teacherbot.help references)
@@ -328,7 +328,7 @@ claude-conduit embodies the FLOW methodology:
 - **O**rganized structure enables creativity
 - **W**isdom emerges through consistent practice
 
-The VIBE system provides continuous encouragement and embedded learning commands, supporting both technical skill development and positive mindset cultivation.
+The VIBE system demonstrates that when you **Verify, and Inspirational Behaviors Emerge** - clear, documented processes become automatic teaching moments. Students, interns, and junior developers learn by watching transparent verification in action. Even the AI models integrated into claude-conduit learn from this principle: observable process verification creates inspiring patterns for others to follow.
 
 ## Future Enhancements
 
