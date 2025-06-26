@@ -1,0 +1,20 @@
+[
+  {
+    "assignment_id": "assign_001",
+    "code_snippet": "def factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorial(n-1)",
+    "student_question": "How does this code calculate the factorial, and why does it use recursion?",
+    "teacher_response": "Great question! The code uses a function that calls itself to break the problem into smaller parts. Can you think about what happens when n is 0? Why might that be important for stopping the recursion?"
+  },
+  {
+    "assignment_id": "assign_002",
+    "code_snippet": "for i in range(5):\n    print(i)",
+    "student_question": "What does this loop do?",
+    "teacher_response": "This loop prints the numbers from 0 to 4. Do you understand how the range function works in this example?"
+  },
+  {
+    "assignment_id": "assign_003",
+    "code_snippet": "my_list = [1, 2, 3]\nmy_list.append(4)",
+    "student_question": "What does the append method do in this code?",
+    "teacher_response": "The append method adds the value 4 to the end of the list. Can you try appending something else to see what happens?"
+  }
+]
