@@ -8,12 +8,12 @@ def call_local_llm(user_input: str) -> str:
         "Authorization": "Bearer lm-studio"
     }
     payload = {
-        "model": "mistral-7b-instruct-v0.2",
+        "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
         "stream": False,
         "messages": [{"role": "user", "content": user_input}]
     }
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=120)
+        response = requests.post(url, headers=headers, json=payload, timeout=500)
         response.raise_for_status()
         data = response.json()
         return data["choices"][0]["message"]["content"]
