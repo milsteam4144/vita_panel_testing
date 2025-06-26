@@ -1,6 +1,26 @@
-# Vita Application
+# VITA Application
 
-This repository contains the Vita Panel Demo, a Python application that uses Panel and Autogen to create an interactive chat interface for debugging and explaining code.
+This repository contains VITA (Virtual Interactive Teaching Assistant), a modular Python application that uses Panel and Autogen to create an interactive chat interface for debugging and explaining code.
+
+## 🏗️ Architecture
+
+VITA has been modularized into a clean library structure for better maintainability and extensibility:
+
+### Main Application
+- `vita_app.py` - Main application entry point (now streamlined to ~37 lines)
+- `vita_app_original.py` - Original monolithic version (backup)
+
+### VITA Library (`vita_lib/`)
+- `__init__.py` - Library initialization and exports
+- `config.py` - Configuration management and environment variables
+- `auth.py` - GitHub OAuth authentication handling
+- `llm.py` - Local LLM communication functions
+- `file_handler.py` - File upload and processing functionality  
+- `main_app.py` - Main application UI and orchestration logic
+- `README.md` - Library documentation
+
+### User Interface
+- `user_interface/` - CSS styles and assets
 
 ## Setup and Running
 
