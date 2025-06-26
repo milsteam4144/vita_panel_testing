@@ -202,11 +202,11 @@ Multi-agent collaboration for educational code review:
 
 #### FLOW Methodology Automation
 - **LEARN**: Research educational context through scout
-- **UNDERSTAND**: Devil's advocate challenges assumptions
-- **PLAN**: taskmaster-ai generates structured breakdowns
-- **EXECUTE**: Guided implementation with MCP tools
-- **VERIFY**: Multi-agent validation and testing
-- **DOCUMENT**: Automated knowledge capture to cloud memory
+- **UNDERSTAND**: Challenge assumptions with devil's advocate
+- **PLAN**: Generate structured breakdowns with taskmaster-ai
+- **EXECUTE**: Implement guided solutions using MCP tools
+- **VERIFY**: Validate and test with multi-agent collaboration
+- **DOCUMENT**: Capture knowledge automatically to cloud memory
 
 ### VIBE System Integration
 
