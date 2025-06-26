@@ -20,9 +20,10 @@ class AuthenticatedVITA(param.Parameterized):
     user_info = param.Dict(default={})
     is_logged_in = param.Boolean(default=False)
     callback_stopped = False
-
-    def __init__(self, **params):
+    
+    def __init__(self, layout_callback=None, **params):
         super().__init__(**params)
+        self.layout_callback = layout_callback
         pn.state.add_periodic_callback(self.check_oauth_callback, period=100, count=10)
 
     def check_oauth_callback(self):
@@ -56,10 +57,9 @@ class AuthenticatedVITA(param.Parameterized):
                         
                         print(f"✅ Login successful: {user_info.get('login')}")
                         
-                        # update the layout directly
-                        global layout
-                        layout.clear()
-                        layout.append(self.create_main_app())
+                        # Update the layout via callback if provided
+                        if self.layout_callback:
+                            self.layout_callback(self.create_main_app())
 
                         return
                     else:
@@ -154,11 +154,10 @@ class AuthenticatedVITA(param.Parameterized):
         # Button event handlers
         def send_message(event):
             message = "Debug the uploaded code"
-            # Access global test variable for backward compatibility
-            global test
-            if test != "":
+            # Access uploaded content directly from the FileUploader instance
+            if uploader.file_content and uploader.file_content != "No file uploaded yet":
                 chat_interface.send(message, respond=False)
-                chat_interface.send(f"```python\n{test}\n```", respond=True)
+                chat_interface.send(f"```python\n{uploader.file_content}\n```", respond=True)
         
         def send_concept_message(event):
             message = f"Give me a brief overview of how to use {select.value} in Python"
@@ -179,9 +178,9 @@ class AuthenticatedVITA(param.Parameterized):
         def handle_logout(event):
             self.user_info = {}
             self.is_logged_in = False
-            global layout
-            layout.clear()
-            layout.append(self.login_view())
+            # Update the layout via callback if provided
+            if self.layout_callback:
+                self.layout_callback(self.login_view())
         logout_button.on_click(handle_logout)
 
         # Header with stacked user info/logout on left, then logo and title

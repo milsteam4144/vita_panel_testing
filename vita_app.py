@@ -21,17 +21,21 @@ pn.extension()
 with open("user_interface/styles.css") as f:
     pn.config.raw_css.append(f.read())
 
-# Global variables (for backward compatibility)
-test = ""
-input_future = None
-initiate_chat_task_created = False
-
 # Set up environment
 Config.setup_environment()
 
-# Create the app instance
-app = AuthenticatedVITA()
-
 # Create layout - always start with login view
-layout = pn.Column(app.login_view())
+layout = pn.Column()
+
+# Layout update callback
+def update_layout(new_content):
+    """Update the main layout with new content."""
+    layout.clear()
+    layout.append(new_content)
+
+# Create the app instance with layout callback
+app = AuthenticatedVITA(layout_callback=update_layout)
+
+# Initialize with login view
+layout.append(app.login_view())
 layout.servable()

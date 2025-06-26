@@ -37,10 +37,6 @@ class FileUploader(param.Parameterized):
 
     def upload_file(self, event):
         """Handle file upload event."""
-        # Global variable for backward compatibility
-        global test
-        
         if self.file_input.value:
             FileUploader.uploaded_content = self.file_input.value.decode('utf-8')
             self.file_content = FileUploader.uploaded_content
-            test = FileUploader.uploaded_content
