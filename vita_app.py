@@ -11,6 +11,9 @@ import asyncio
 import param
 import urllib.parse
 import json
+import numpy as np
+from sentence_transformers import SentenceTransformer
+import faiss
 
 from llm_connect import call_local_llm, build_chat_callback
 from auth import GitHubAuth
@@ -28,6 +31,45 @@ with open("user_interface/styles.css") as f:
 test = ""
 input_future = None
 initiate_chat_task_created = False
+
+
+class RAGBackend:
+    def __init__(self, data_path="data/dummy_data.json", embedding_model='all-MiniLM-L6-v2'):
+        # Load data
+        with open(data_path) as f:
+            self.data = json.load(f)
+        # Prepare model and embeddings
+        self.model = SentenceTransformer(embedding_model)
+        self.texts = [d['student_question'] + " " + d['code_snippet'] for d in self.data]
+        self.embeddings = self.model.encode(self.texts, convert_to_numpy=True)
+        # Build FAISS index
+        self.index = faiss.IndexFlatL2(self.embeddings.shape[1])
+        self.index.add(self.embeddings)
+
+    def query(self, question, k=1):
+        """Return the best-matching data entries for the question."""
+        user_emb = self.model.encode([question], convert_to_numpy=True)
+        D, I = self.index.search(user_emb, k)
+        results = []
+        for idx in I[0]:
+            match = self.data[idx]
+            results.append({
+                "answer": match['teacher_response'],
+                "matched_assignment": match.get('assignment_id', None),
+                "matched_code": match.get('code_snippet', None),
+                "student_question": match.get('student_question', None)
+            })
+        return results
+
+
+# Initialize RAG backend
+try:
+    print("🔍 Initializing RAG backend...")
+    rag_backend = RAGBackend()
+    print("✅ RAG backend initialized successfully!")
+except Exception as e:
+    print(f"⚠️ RAG backend initialization failed: {e}")
+    rag_backend = None
 
 
 class AuthenticatedVITA(param.Parameterized):
@@ -301,17 +343,72 @@ class AuthenticatedVITA(param.Parameterized):
         return pn.Column(header, top_row, main_row)
     
     def setup_local_chat(self):
-        callback = build_chat_callback(call_local_llm)
+        # Create custom callback that uses RAG
+        async def rag_enhanced_callback(user_input, user, instance):
+            try:
+                # Check if RAG backend is available
+                if rag_backend is not None:
+                    # Get relevant context from RAG backend
+                    rag_results = rag_backend.query(user_input, k=2)  # Get top 2 matches
+                          # Debug: Print what context was found
+                print(f"🔍 RAG Query: {user_input}")
+                for i, result in enumerate(rag_results):
+                    print(f"📄 Match {i+1}: {result['matched_assignment']} | Code: {result['matched_code'][:50]}...")
+                    
+                    # Build enhanced prompt with context
+                    context_parts = []
+                    for i, result in enumerate(rag_results):
+                        context_parts.append(f"""
+Context {i+1}:
+Student Question: {result['student_question']}
+Code: {result['matched_code']}
+Teacher Response: {result['answer']}
+""")
+                    
+                    context_text = "\n".join(context_parts)
+                    
+                    enhanced_prompt = f"""You are VITA, a Virtual Interactive Teaching Assistant for Python programming. 
+
+Here is some relevant context from previous student interactions:
+{context_text}
+
+Current student question: {user_input}
+
+Please provide a helpful, educational response that builds on the context above when relevant. If the context doesn't apply to the current question, just answer the question directly. Keep your response conversational and encouraging."""
+                    
+                    # Send to LLM with enhanced prompt
+                    loop = asyncio.get_event_loop()
+                    response = await loop.run_in_executor(None, call_local_llm, enhanced_prompt)
+                    instance.send(response, user="VITA", avatar="🧠", respond=False)
+                else:
+                    # RAG not available, use regular LLM call
+                    loop = asyncio.get_event_loop()
+                    response = await loop.run_in_executor(None, call_local_llm, user_input)
+                    instance.send(response, user="VITA", avatar="🧠", respond=False)
+                
+            except Exception as e:
+                # Fallback to regular LLM call if RAG fails
+                print(f"RAG error: {e}")
+                loop = asyncio.get_event_loop()
+                response = await loop.run_in_executor(None, call_local_llm, user_input)
+                instance.send(response, user="VITA", avatar="🧠", respond=False)
 
         # Create the chat interface
         chat = pn.chat.ChatInterface(
-            callback=callback,
+            callback=rag_enhanced_callback,
             user="Student",
             show_rerun=False,
             show_undo=False,
             show_clear=True,
         )
-        chat.send("👋 Welcome! Ask me anything about Python.", user="System", respond=False)
+        
+        welcome_message = "👋 Welcome! Ask me anything about Python."
+        if rag_backend is not None:
+            welcome_message += " I have access to relevant examples and documentation to help you better."
+        else:
+            welcome_message += " (Note: Enhanced context features are currently unavailable)"
+            
+        chat.send(welcome_message, user="System", respond=False)
         return chat
 
 

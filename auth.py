@@ -1,6 +1,10 @@
 import os
 import urllib.parse
 from authlib.integrations.requests_client import OAuth2Session
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")

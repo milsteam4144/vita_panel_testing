@@ -1,3 +1,10 @@
+# Environment variables with sensitive information
+.env
+
+# Virtual environments
 /vita_venv
+
+# Python cache
 *.pyc
 *.pyc
+/vita_venv
