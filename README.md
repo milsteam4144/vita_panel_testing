@@ -15,20 +15,53 @@ Follow these steps to set up and run the Vita Panel Demo:
    cd vita-panel-demo
    ```
 
-2. **Set up the Gitub OAuth environment variables:**
+2. **Set up the Gitub OAuth environment variables (Optional):**
 
-   Instructions on how to create your Gitub OAuth credentials can be found here:
-   https://www.freecodecamp.org/news/how-to-set-up-a-github-oauth-application/#:~:text=Create%20Your%20Application,client%20secret%22%20to%20do%20so.
-
-   On a Windows machine, open a terminal and run the following commands:
+   By default, OAuth authentication is disabled for easier testing. To enable OAuth:
+   
+   **Windows:**
+   ```
+   set SKIP_OAUTH=False
    set GITHUB_CLIENT_ID=<your_key_here>
    set GITHUB_CLIENT_SECRET=<your_key_here>
-
-   In a Github codespace, open a terminal and enter the environment variables using the Linux commands:
+   ```
+   
+   **Linux/macOS/GitHub Codespaces:**
+   ```
+   export SKIP_OAUTH=False
    export GITHUB_CLIENT_ID=<your_key_here>
    export GITHUB_CLIENT_SECRET=<your_key_here>
+   ```
+   
+   Instructions on how to create your GitHub OAuth credentials can be found here:
+   https://www.freecodecamp.org/news/how-to-set-up-a-github-oauth-application/#:~:text=Create%20Your%20Application,client%20secret%22%20to%20do%20so.
+   
+   Note: When SKIP_OAUTH is True (default), the app will start directly without login.
 
-3. **Run the program using a starter file**
+3. **Configure LLM Backend (Optional):**
+
+   By default, VITA uses LM Studio for the local LLM. For Linux users, Ollama is also supported:
+   
+   **To use Ollama:**
+   ```bash
+   # Install Ollama (if not already installed)
+   curl -fsSL https://ollama.com/install.sh | sh
+   
+   # Pull the TinyLlama model
+   ollama pull tinyllama
+   
+   # Set environment variables before running VITA
+   export LLM_BACKEND="ollama"
+   export OLLAMA_MODEL="tinyllama"  # or any model from 'ollama list'
+   # export OLLAMA_URL="http://localhost:11434/api/chat"  # Optional: custom Ollama URL
+   ```
+   
+   **To use LM Studio (default):**
+   - Download and install LM Studio from https://lmstudio.ai/
+   - Load the TinyLlama model in LM Studio
+   - Start the local server in LM Studio (default port 1234)
+
+4. **Run the program using a starter file**
 
    Ensure you are still in the vita_panel_testing directory...
    On a Windows machine, run the command: run_vita_app.bat
