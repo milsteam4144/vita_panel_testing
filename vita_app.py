@@ -9,13 +9,10 @@ import os
 import time
 import asyncio
 import param
-import urllib.parse
 import json
 
 from llm_connect import call_local_llm, build_chat_callback
-from auth import GitHubAuth
 from file_uploader import FileUploader
-
 
 
 # Load panel extension and custom CSS from local file styles.css
@@ -30,140 +27,15 @@ input_future = None
 initiate_chat_task_created = False
 
 
-class AuthenticatedVITA(param.Parameterized):
-    user_info = param.Dict(default={})
-    is_logged_in = param.Boolean(default=False)
-    callback_stopped = False  # Add this line
-    
+class VITAApp(param.Parameterized):
+
     def __init__(self, **params):
         super().__init__(**params)
-        pn.state.add_periodic_callback(self.check_oauth_callback, period=100, count=10)
-    
-    def check_oauth_callback(self):
-        # Stop if already processed
-        if self.callback_stopped:
-            return
-        
-        try:
-            # Check for OAuth parameters
-            if hasattr(pn.state, 'location') and pn.state.location and pn.state.location.search:
-                search_params = pn.state.location.search
-                print(f"*** OAuth callback detected: {search_params[:50]}...")
-                
-                # Parse URL parameters
-                query_string = search_params.lstrip('?')
-                params = urllib.parse.parse_qs(query_string)
-                
-                # Check for OAuth code
-                if 'code' in params and params['code']:
-                    code = params['code'][0]
-                    state = params.get('state', [None])[0]
-                    
-                    # Exchange code for user info
-                    user_info = GitHubAuth.fetch_user_info(code, state)
-                    if user_info:
-                        # Set login state
-                        self.user_info = user_info
-                        self.is_logged_in = True
-                        self.callback_stopped = True
-                        
-                        print(f"✅ Login successful: {user_info.get('login')}")
-                        
-                        # update the layout directly
-                        global layout
-                        layout.clear()
-                        layout.append(self.create_main_app())
-
-                        return
-                    else:
-                        print("❌ Failed to fetch user info")
-                
-                elif 'error' in params:
-                    print(f"❌ OAuth error: {params['error'][0]}")
-                    
-        except Exception as e:
-            print(f"❌ Callback error: {e}")
-    
-    def login_view(self):
-        """Login screen"""
-        auth_url = GitHubAuth.get_authorization_url()
-        
-        # Add JavaScript to help detect OAuth callback
-        callback_detector = pn.pane.HTML("""
-            <script>
-            // Check for OAuth parameters on page load
-            window.addEventListener('load', function() {
-                const urlParams = new URLSearchParams(window.location.search);
-                const code = urlParams.get('code');
-                if (code) {
-                    console.log('OAuth callback detected by JavaScript:', code.substring(0, 10) + '...');
-                    // Trigger a Panel event or refresh
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 1000);
-                }
-            });
-            </script>
-        """)
-        
-        login_content = pn.Column(
-            callback_detector,  # Add the JavaScript detector
-            pn.pane.Markdown("# 🔐 Login to VITA"),
-            pn.pane.Markdown("Please log in with your GitHub account to continue."),
-            pn.pane.HTML(f'''
-                <div class="login-container">
-                    <h3>Welcome to VITA!</h3>
-                    <p>Your Virtual Interactive Teaching Assistant</p>
-                    <a href="{auth_url}" style="
-                        display: inline-block;
-                        padding: 12px 24px;
-                        background-color: #24292e;
-                        color: white;
-                        text-decoration: none;
-                        border-radius: 6px;
-                        font-weight: bold;
-                        margin: 20px 0;
-                    ">🔐 Login with GitHub</a>
-                    <p><small>You'll be redirected to GitHub to authorize this app</small></p>
-                    <div id="debug-info">
-                        <p><small>Debug info:</small></p>
-                        <p><small>Login status: {self.is_logged_in}</small></p>
-                        <p><small>User info: {bool(self.user_info)}</small></p>
-                    </div>
-                </div>
-            '''),
-            sizing_mode='stretch_width'
-        )
-        return login_content
     
     def user_header(self):
-        """User info header"""
-        if not self.is_logged_in:
-            return pn.pane.HTML("")
-        
-        logout_button = pn.widgets.Button(name="🚪 Logout", button_type="light")
-        
-        def handle_logout(event):
-            self.user_info = {}
-            self.is_logged_in = False
-            # Force page refresh
-            pn.state.location.reload = True
-        
-        logout_button.on_click(handle_logout)
-        
-        return pn.Row(
-            pn.pane.HTML(f'''
-                <div class="user-info">
-                    <img src="{self.user_info.get('avatar_url', '')}" 
-                         width="40" height="40" style="border-radius: 20px;">
-                    <span><strong>{self.user_info.get('login', 'User')}</strong></span>
-                </div>
-            '''),
-            pn.Spacer(),
-            logout_button,
-            sizing_mode='stretch_width'
-        )
-    
+        """User info header - now empty since no login"""
+        return pn.pane.HTML("")
+
     def create_main_app(self):
         """Create the main VITA application"""
         # File uploader
@@ -212,50 +84,11 @@ class AuthenticatedVITA(param.Parameterized):
         debug_button.param.watch(send_message, 'clicks')
         explain_button.param.watch(send_concept_message, 'clicks')
         open_url_button.on_click(open_url)
-        
 
-        # Create logout button
-        logout_button = pn.widgets.Button(name="🚪 Logout", button_type="light")
-        def handle_logout(event):
-            self.user_info = {}
-            self.is_logged_in = False
-            global layout
-            layout.clear()
-            layout.append(self.login_view())
-        logout_button.on_click(handle_logout)
-
-        # Header with stacked user info/logout on left, then logo and title
+        # Header with just logo and title (no user info / logout)
         jpg_pane = pn.pane.Image('user_interface/logo.png', width=120, height=80)
 
-        # Create logout button with black border
-        logout_button = pn.widgets.Button(name="🚪 Logout", button_type="light")
-        logout_button.styles = {'border': '2px solid black'}
-
-        def handle_logout(event):
-            self.user_info = {}
-            self.is_logged_in = False
-            global layout
-            layout.clear()
-            layout.append(self.login_view())
-        logout_button.on_click(handle_logout)
-
-        # Stacked user info and logout button
-        user_stack = pn.Column(
-            pn.pane.HTML(f'''
-                <div class="user-info" style="border: 2px solid black;">
-                    <img src="{self.user_info.get('avatar_url', '')}" 
-                        width="40" height="40" style="border-radius: 20px;">
-                    <span><strong>{self.user_info.get('login', 'User')}</strong></span>
-                </div>
-            '''),
-            logout_button,
-            width=150,  # Fixed width for the stack
-            margin=(5, 10, 5, 5)
-        )
-
-        # Single row header: [user stack] [logo] [title] [spacer]
         header = pn.Row(
-            user_stack,
             jpg_pane,
             pn.pane.Markdown("# VITA: Virtual Interactive Teaching Assistant"),
             pn.Spacer(),
@@ -319,8 +152,8 @@ class AuthenticatedVITA(param.Parameterized):
 os.environ["AUTOGEN_USE_DOCKER"] = "False"
 
 # Create the app instance
-app = AuthenticatedVITA()
+app = VITAApp()
 
-# Create layout - always start with login view
-layout = pn.Column(app.login_view())
+# Create layout - directly start with main app view (no login)
+layout = pn.Column(app.create_main_app())
 layout.servable()
