@@ -1,15 +1,13 @@
 
 import requests
 
-import requests
-
 def call_local_llm(user_input: str) -> str:
     url = "http://localhost:11434/api/chat"
     headers = {
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "tinyllama",  # Make sure this model is pulled via `ollama pull tinyllama`
+        "model": "qwen3:0.6b",  # Using qwen3:0.6b model
         "messages": [{"role": "user", "content": user_input}],
         "stream": False
     }
