@@ -2,23 +2,29 @@
 import requests
 
 def call_local_llm(user_input: str) -> str:
-    url = "http://localhost:1234/v1/chat/completions"
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer lm-studio"
-    }
+    """
+    Call Ollama API for local LLM inference
+    Ollama must be running on localhost:11434
+    """
+    url = "http://localhost:11434/v1/chat/completions"
+    headers = {"Content-Type": "application/json"}
     payload = {
-        "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
+        "model": "llama2",  # Default model - can be configured
         "stream": False,
         "messages": [{"role": "user", "content": user_input}]
     }
+    
     try:
-        response = requests.post(url, headers=headers, json=payload, timeout=500)
+        response = requests.post(url, headers=headers, json=payload, timeout=30)
         response.raise_for_status()
         data = response.json()
         return data["choices"][0]["message"]["content"]
+    except requests.exceptions.ConnectionError:
+        return "❌ Ollama not running. Please start Ollama service on localhost:11434"
+    except requests.exceptions.Timeout:
+        return "⏱️ Ollama request timed out. Try again or check model availability."
     except Exception as e:
-        return f"⚠️ Error from LLM: {e}"
+        return f"⚠️ Error from Ollama: {e}"
 
 def build_chat_callback(llm_function):
     import asyncio
