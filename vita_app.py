@@ -38,7 +38,7 @@ try:
     from rag_backend_enhanced import EnhancedRAGBackend
     USE_ENHANCED_RAG = True
 except ImportError:
-    print("⚠️ Enhanced RAG backend not available, falling back to original")
+    print("Warning: Enhanced RAG backend not available, falling back to original")
     USE_ENHANCED_RAG = False
 
 # Keep original RAG backend for fallback
@@ -73,15 +73,15 @@ class RAGBackend:
 
 # Initialize RAG backend
 try:
-    print("🔍 Initializing RAG backend...")
+    print("Initializing RAG backend...")
     if USE_ENHANCED_RAG:
         rag_backend = EnhancedRAGBackend()
-        print("✅ Enhanced RAG backend initialized successfully!")
+        print("Enhanced RAG backend initialized successfully!")
     else:
         rag_backend = RAGBackend()
-        print("✅ Original RAG backend initialized successfully!")
+        print("Original RAG backend initialized successfully!")
 except Exception as e:
-    print(f"⚠️ RAG backend initialization failed: {e}")
+    print(f"Warning: RAG backend initialization failed: {e}")
     rag_backend = None
 
 

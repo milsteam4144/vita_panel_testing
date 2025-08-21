@@ -24,9 +24,9 @@ class ContentExtractor:
                     file_chunks = self._extract_from_file(file_path)
                     chunks.extend(file_chunks)
                 except Exception as e:
-                    print(f"⚠️ Error processing {file_path}: {e}")
+                    print(f"Warning: Error processing {file_path}: {e}")
                     
-        print(f"✅ Extracted {len(chunks)} chunks from {len(list(self.base_path.rglob('*')))} files")
+        print(f"Extracted {len(chunks)} chunks from {len(list(self.base_path.rglob('*')))} files")
         return chunks
     
     def _extract_from_file(self, file_path: Path) -> List[Dict[str, Any]]:
@@ -202,7 +202,7 @@ class ContentExtractor:
                     chunks.append(chunk)
                     
         except Exception as e:
-            print(f"⚠️ Error reading PowerPoint file {file_path}: {e}")
+            print(f"Warning: Error reading PowerPoint file {file_path}: {e}")
             
         return chunks
 
