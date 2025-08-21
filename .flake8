@@ -1,0 +1,46 @@
+[flake8]
+# Configuration for flake8 linting
+max-line-length = 88
+max-complexity = 12
+extend-ignore = 
+    # E203: whitespace before ':' (conflicts with black)
+    E203,
+    # W503: line break before binary operator (conflicts with black)
+    W503,
+    # E501: line too long (handled by black)
+    E501,
+    # F401: imported but unused (handled by isort/mypy)
+    F401
+
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    vita_venv,
+    .eggs,
+    *.egg,
+    build,
+    dist,
+    .tox,
+    .coverage,
+    htmlcov,
+    .pytest_cache,
+    .mypy_cache,
+    instructor_created_data
+
+per-file-ignores =
+    # Tests can use assertions and fixtures
+    tests/*:S101,F811
+    # __init__.py files can have unused imports
+    __init__.py:F401
+    # Configuration files
+    setup.py:E402
+    conftest.py:E402
+
+# Docstring requirements
+docstring-convention = google
+require-plugins = 
+    flake8-docstrings,
+    flake8-bugbear,
+    flake8-comprehensions,
+    flake8-simplify
