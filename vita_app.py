@@ -33,6 +33,15 @@ input_future = None
 initiate_chat_task_created = False
 
 
+# Import the enhanced RAG backend
+try:
+    from rag_backend_enhanced import EnhancedRAGBackend
+    USE_ENHANCED_RAG = True
+except ImportError:
+    print("⚠️ Enhanced RAG backend not available, falling back to original")
+    USE_ENHANCED_RAG = False
+
+# Keep original RAG backend for fallback
 class RAGBackend:
     def __init__(self, data_path="data/dummy_data.json", embedding_model='all-MiniLM-L6-v2'):
         # Load data
@@ -65,8 +74,12 @@ class RAGBackend:
 # Initialize RAG backend
 try:
     print("🔍 Initializing RAG backend...")
-    rag_backend = RAGBackend()
-    print("✅ RAG backend initialized successfully!")
+    if USE_ENHANCED_RAG:
+        rag_backend = EnhancedRAGBackend()
+        print("✅ Enhanced RAG backend initialized successfully!")
+    else:
+        rag_backend = RAGBackend()
+        print("✅ Original RAG backend initialized successfully!")
 except Exception as e:
     print(f"⚠️ RAG backend initialization failed: {e}")
     rag_backend = None
@@ -346,45 +359,82 @@ class AuthenticatedVITA(param.Parameterized):
         # Create custom callback that uses RAG
         async def rag_enhanced_callback(user_input, user, instance):
             try:
+                rag_results = []
+                sources_used = []
+                
                 # Check if RAG backend is available
                 if rag_backend is not None:
                     # Get relevant context from RAG backend
-                    rag_results = rag_backend.query(user_input, k=2)  # Get top 2 matches
-                          # Debug: Print what context was found
-                print(f"🔍 RAG Query: {user_input}")
-                for i, result in enumerate(rag_results):
-                    print(f"📄 Match {i+1}: {result['matched_assignment']} | Code: {result['matched_code'][:50]}...")
+                    rag_results = rag_backend.query(user_input, k=3)  # Get top 3 matches
                     
-                    # Build enhanced prompt with context
-                    context_parts = []
+                    # Debug: Print what context was found
+                    print(f"🔍 RAG Query: {user_input}")
                     for i, result in enumerate(rag_results):
-                        context_parts.append(f"""
-Context {i+1}:
-Student Question: {result['student_question']}
-Code: {result['matched_code']}
-Teacher Response: {result['answer']}
+                        # Handle both enhanced and original RAG result formats
+                        if 'source_file' in result:
+                            print(f"📄 Match {i+1}: {result['source_file']} ({result.get('chunk_type', 'unknown')})")
+                            sources_used.append({
+                                'file': result['source_file'],
+                                'preview': result.get('content_preview', result.get('answer', '')[:100] + '...'),
+                                'type': result.get('chunk_type', 'unknown')
+                            })
+                        else:
+                            # Original format
+                            print(f"📄 Match {i+1}: {result.get('matched_assignment', 'N/A')} | Code: {str(result.get('matched_code', ''))[:50]}...")
+                            sources_used.append({
+                                'file': 'data/dummy_data.json',
+                                'preview': result.get('answer', '')[:100] + '...',
+                                'type': 'fallback_qa'
+                            })
+                    
+                    if rag_results:
+                        # Build enhanced prompt with context
+                        context_parts = []
+                        for i, result in enumerate(rag_results):
+                            # Handle both enhanced and original RAG result formats
+                            if 'source_file' in result:
+                                # Enhanced format
+                                context_parts.append(f"""
+Context {i+1} (from {result['source_file']}):
+{result['answer']}
 """)
-                    
-                    context_text = "\n".join(context_parts)
-                    
-                    enhanced_prompt = f"""You are VITA, a Virtual Interactive Teaching Assistant for Python programming. 
+                            else:
+                                # Original format
+                                context_parts.append(f"""
+Context {i+1}:
+Student Question: {result.get('student_question', '')}
+Code: {result.get('matched_code', '')}
+Teacher Response: {result.get('answer', '')}
+""")
+                        
+                        context_text = "\n".join(context_parts)
+                        
+                        enhanced_prompt = f"""You are VITA, a Virtual Interactive Teaching Assistant for Python programming. 
 
-Here is some relevant context from previous student interactions:
+Here is some relevant context from educational materials and previous interactions:
 {context_text}
 
 Current student question: {user_input}
 
 Please provide a helpful, educational response that builds on the context above when relevant. If the context doesn't apply to the current question, just answer the question directly. Keep your response conversational and encouraging."""
-                    
-                    # Send to LLM with enhanced prompt
-                    loop = asyncio.get_event_loop()
-                    response = await loop.run_in_executor(None, call_local_llm, enhanced_prompt)
-                    instance.send(response, user="VITA", avatar="🧠", respond=False)
+                    else:
+                        enhanced_prompt = user_input
                 else:
-                    # RAG not available, use regular LLM call
-                    loop = asyncio.get_event_loop()
-                    response = await loop.run_in_executor(None, call_local_llm, user_input)
-                    instance.send(response, user="VITA", avatar="🧠", respond=False)
+                    enhanced_prompt = user_input
+                
+                # Send to LLM with enhanced prompt
+                loop = asyncio.get_event_loop()
+                response = await loop.run_in_executor(None, call_local_llm, enhanced_prompt)
+                instance.send(response, user="VITA", avatar="🧠", respond=False)
+                
+                # Add sources used display if any were found
+                if sources_used:
+                    sources_text = "**📚 Sources Used:**\n"
+                    for i, source in enumerate(sources_used, 1):
+                        sources_text += f"{i}. **{source['file']}** ({source['type']})\n"
+                        sources_text += f"   _{source['preview']}_\n\n"
+                    
+                    instance.send(sources_text, user="System", avatar="📚", respond=False)
                 
             except Exception as e:
                 # Fallback to regular LLM call if RAG fails

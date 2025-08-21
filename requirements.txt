@@ -60,3 +60,7 @@ uc-micro-py==1.0.3
 urllib3==2.5.0
 webencodings==0.5.1
 xyzservices==2025.4.0
+chromadb==0.5.23
+python-pptx==1.0.2
+beautifulsoup4==4.12.3
+scikit-learn==1.6.1
