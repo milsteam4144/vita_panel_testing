@@ -1,0 +1,25 @@
+October 1, 2024
+ATC 111
+Mallory Milstead
+Susanna Quayle
+David Teter
+----------------
+
+
+Disclaimer - All data input is sent to CHATGPT and is is subject to its privacy policy - link to GPT privacy policy
+
+Obtain HTML files for all dropdown concepts
+ - named properly one word, all lowercase - have examples
+ - using jupyter notebook to create the html files  ** maybe connect to jupyter notebook**
+ - convert to text file
+ - chunk text files and add to mongo or chroma
+ - incorporate the RAG into the message sending process
+
+
+Add agents to facilitate the process of making students search for the answer themselves
+
+FORCE student to open the related html file before VITA continues the conversation
+
+FORCE them to try again to answer their own question
+
+

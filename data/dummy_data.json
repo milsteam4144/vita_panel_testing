@@ -1,0 +1,57 @@
+[
+  {
+    "assignment_id": "assign_001",
+    "code_snippet": "def factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorial(n-1)",
+    "student_question": "How does this code calculate the factorial, and why does it use recursion?",
+    "teacher_response": "Great question! The code uses a function that calls itself to break the problem into smaller parts. Can you think about what happens when n is 0? Why might that be important for stopping the recursion?"
+  },
+  {
+    "assignment_id": "assign_002",
+    "code_snippet": "for i in range(5):\n    print(i)",
+    "student_question": "What does this loop do?",
+    "teacher_response": "This loop prints the numbers from 0 to 4. Do you understand how the range function works in this example?"
+  },
+  {
+    "assignment_id": "assign_003",
+    "code_snippet": "my_list = [1, 2, 3]\nmy_list.append(4)",
+    "student_question": "What does the append method do in this code?",
+    "teacher_response": "The append method adds the value 4 to the end of the list. Can you try appending something else to see what happens?"
+  },
+  {
+    "assignment_id": "assign_004",
+    "code_snippet": "print=\"Hello World\"",
+    "student_question": "Why isn't this code printing anything?",
+    "teacher_response": "Great question! In Python, the `print` function is used to display output, but there should never be an equal sign in a `print` statement. In your code, you're actually assigning the string 'Hello World' to a variable named `print`, which replaces the built-in function. Try using `print(\"Hello World\")` instead."
+  },
+  {
+    "assignment_id": "assign_005",
+    "code_snippet": "print(\"Hello\"",
+    "student_question": "Why am I getting a syntax error with this line?",
+    "teacher_response": "You're very close! The error is happening because the `print` statement is missing a closing parenthesis. In Python, every opening parenthesis needs a matching closing one. Try writing it as `print(\"Hello\")` to fix the error."
+  },
+  {
+    "assignment_id": "assign_006",
+    "code_snippet": "my_dictionary = [cat1: 'Whiskers', cat2: 'Mittens']",
+    "student_question": "Why am I getting a syntax error with this line?",
+    "teacher_response": "You are trying to create a dictionary, but the syntax is incorrect. In Python, dictionaries use curly braces `{}` and key-value pairs are separated by commas. It should look like this: `my_dictionary = {'cat1': 'Whiskers', 'cat2': 'Mittens'}`. Can you see how that changes the structure?"
+  },
+  {
+    "assignment_id": "assign_007",
+    "code_snippet": "def my-function():",
+    "student_question": "Why am I getting an error when I try to run this function?",
+    "teacher_response": "Function names in Python cannot have hyphens (`-`). Hyphens are interpreted as subtraction. Try using an underscore (`_`) instead, like this: `def my_function():`. Does that help fix the error?"
+  },
+  {
+    "assignment_id": "assign_009",
+    "code_snippet": "sum = 5 + '3'",
+    "student_question": "Why does this line cause an error when I run it?",
+    "teacher_response": "You’re trying to add an integer (`5`) to a string (`'3'`), which causes a type error. Python doesn't know how to combine these different types. You can fix it by converting the string to an integer first: `sum = 5 + int('3')`. Can you try that and see if it works?"
+  },
+  {
+    "assignment_id": "assign_010",
+    "code_snippet": "if (x>3){",
+    "student_question": "Why does this line cause an error when I run it?",
+    "teacher_response": "In Python, we use colons (`:`) instead of curly braces (`{}`) to start a block of code. So, you should write it as `if x > 3:`. Can you try that and see if it resolves the error?"
+  }
+
+]
