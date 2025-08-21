@@ -1,8 +1,0 @@
-[
-  {
-    "question": "Why is using 'break' to stop a while loop not considered best practice?",
-    "answer":["1. Does not give any information about when or why the loop ends.",
-               "2. A Programmer must read inside the loop body to understand when the loop will stop."] ,
-    "solution":"consider using sentinels instead"
-  }
-]
