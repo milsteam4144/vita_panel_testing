@@ -2,7 +2,9 @@
   "permissions": {
     "allow": [
       "Bash(mv:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(pip install:*)",
+      "Bash(powershell:*)"
     ],
     "deny": [],
     "ask": []
