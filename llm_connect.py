@@ -2,21 +2,20 @@
 import requests
 
 def call_local_llm(user_input: str) -> str:
-    url = "http://localhost:1234/v1/chat/completions"
+    url = "http://localhost:11434/api/generate"
     headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer lm-studio"
+        "Content-Type": "application/json"
     }
     payload = {
-        "model": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
-        "stream": False,
-        "messages": [{"role": "user", "content": user_input}]
+        "model": "tinyllama",
+        "prompt": user_input,
+        "stream": False
     }
     try:
         response = requests.post(url, headers=headers, json=payload, timeout=500)
         response.raise_for_status()
         data = response.json()
-        return data["choices"][0]["message"]["content"]
+        return data["response"]
     except Exception as e:
         return f"⚠️ Error from LLM: {e}"
 

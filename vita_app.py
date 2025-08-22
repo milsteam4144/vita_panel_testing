@@ -364,33 +364,65 @@ class AuthenticatedVITA(param.Parameterized):
                 
                 # Check if RAG backend is available
                 if rag_backend is not None:
+                    # First, check for common misconceptions
+                    misconceptions = [
+                        ("if else loop", "I notice you mentioned 'if else loop' - but there's no such thing! These are actually two separate concepts:\n\n• **IF statements** - make decisions (like choosing what to wear based on weather)\n• **LOOPS** - repeat actions (like counting from 1 to 10)\n\nWhat would you like to learn about - making decisions with IF statements, or repeating actions with loops?"),
+                        ("for loop if", "I see you're mixing 'for loop' and 'if' - these are different concepts! Would you like to learn about FOR loops (which repeat actions) or IF statements (which make decisions)?"),
+                        ("while if", "It looks like you're combining 'while' and 'if' concepts. Would you like to learn about WHILE loops (repeating until something changes) or IF statements (making one-time decisions)?")
+                    ]
+                    
+                    user_input_lower = user_input.lower()
+                    for misconception, correction in misconceptions:
+                        if misconception in user_input_lower:
+                            instance.send(correction, user="VITA", avatar="🧠", respond=False)
+                            return
+                    
+                    # Expand mathematical symbols for better RAG matching
+                    expanded_query = user_input
+                    symbol_expansions = {
+                        "//": "floor division operator double slash",
+                        "/": "division operator slash",
+                        "%": "modulo remainder operator percent",
+                        "*": "multiplication operator asterisk",
+                        "+": "addition operator plus",
+                        "-": "subtraction operator minus",
+                        "=": "assignment operator equals",
+                        "==": "equality comparison operator",
+                        "!=": "not equal comparison operator"
+                    }
+                    
+                    for symbol, expansion in symbol_expansions.items():
+                        if symbol in user_input:
+                            expanded_query = f"{user_input} {expansion}"
+                            break
+                    
                     # Get relevant context from RAG backend
-                    rag_results = rag_backend.query(user_input, k=3)  # Get top 3 matches
+                    rag_results = rag_backend.query(expanded_query, k=3)  # Get top 3 matches
                     
                     # Debug: Print what context was found
-                    print(f"🔍 RAG Query: {user_input}")
+                    print(f"🔍 RAG Query: {expanded_query}")
                     for i, result in enumerate(rag_results):
                         # Handle both enhanced and original RAG result formats
                         if 'source_file' in result:
-                            print(f"📄 Match {i+1}: {result['source_file']} ({result.get('chunk_type', 'unknown')})")
-                            sources_used.append({
-                                'file': result['source_file'],
-                                'preview': result.get('content_preview', result.get('answer', '')[:100] + '...'),
-                                'type': result.get('chunk_type', 'unknown')
-                            })
+                            distance = result.get('distance', 'N/A')
+                            print(f"📄 Match {i+1}: {result['source_file']} (distance: {distance}, type: {result.get('chunk_type', 'unknown')})")
                         else:
                             # Original format
                             print(f"📄 Match {i+1}: {result.get('matched_assignment', 'N/A')} | Code: {str(result.get('matched_code', ''))[:50]}...")
-                            sources_used.append({
-                                'file': 'data/dummy_data.json',
-                                'preview': result.get('answer', '')[:100] + '...',
-                                'type': 'fallback_qa'
-                            })
                     
-                    if rag_results:
+                    # Filter results for relevance (only show sources if distance < 1.2 for enhanced RAG)
+                    relevant_results = []
+                    for result in rag_results:
+                        distance = result.get('distance', 0)
+                        if distance is None or distance < 1.2:  # Consider relevant if distance is low
+                            relevant_results.append(result)
+                        elif result.get('source_type') == 'fallback_data':  # Always include fallback data
+                            relevant_results.append(result)
+                    
+                    if relevant_results:
                         # Build enhanced prompt with context
                         context_parts = []
-                        for i, result in enumerate(rag_results):
+                        for i, result in enumerate(relevant_results):
                             # Handle both enhanced and original RAG result formats
                             if 'source_file' in result:
                                 # Enhanced format
@@ -409,16 +441,49 @@ Teacher Response: {result.get('answer', '')}
                         
                         context_text = "\n".join(context_parts)
                         
-                        enhanced_prompt = f"""You are VITA, a Virtual Interactive Teaching Assistant for Python programming. 
+                        enhanced_prompt = f"""You are VITA, a virtual teaching assistant helping students discover answers through questions. DO NOT give direct tutorials or explanations.
 
-Here is some relevant context from educational materials and previous interactions:
+Educational content:
 {context_text}
 
-Current student question: {user_input}
+Student question: "{user_input}"
 
-Please provide a helpful, educational response that builds on the context above when relevant. If the context doesn't apply to the current question, just answer the question directly. Keep your response conversational and encouraging."""
+Instead of explaining directly, help the student discover the answer by:
+1. Asking guiding questions that lead them to think
+2. Giving hints rather than answers
+3. Using analogies from everyday life
+4. Encouraging them to try things and see what happens
+
+Example approach: "That's a great question! Before we dive in, let me ask you - what do you think happens when you need to make a choice in everyday life, like deciding whether to bring an umbrella? How is that different from doing the same action over and over, like brushing each tooth?"
+
+Be encouraging and use simple language."""
+                        
+                        # Update sources_used with only relevant results
+                        sources_used = []
+                        for result in relevant_results:
+                            if 'source_file' in result:
+                                sources_used.append({
+                                    'file': result['source_file'],
+                                    'preview': result.get('content_preview', result.get('answer', '')[:100] + '...'),
+                                    'type': result.get('chunk_type', 'unknown')
+                                })
+                            else:
+                                sources_used.append({
+                                    'file': 'data/dummy_data.json',
+                                    'preview': result.get('answer', '')[:100] + '...',
+                                    'type': 'fallback_qa'
+                                })
                     else:
-                        enhanced_prompt = user_input
+                        # No relevant content found - provide Python-focused response
+                        enhanced_prompt = f"""You are VITA, a virtual teaching assistant for CTI-110 Python programming. A student asked: "{user_input}"
+
+Since I don't have specific educational content about this topic, help the student discover the answer by:
+1. Asking guiding questions about Python programming concepts
+2. Encouraging them to experiment with Python code
+3. Using simple analogies to explain programming concepts
+4. Focusing on Python basics like operators, data types, loops, conditionals, and functions
+
+Be encouraging and suggest they try things in Python to see what happens. Always keep responses focused on Python programming for beginners."""
                 else:
                     enhanced_prompt = user_input
                 
@@ -452,9 +517,9 @@ Please provide a helpful, educational response that builds on the context above 
             show_clear=True,
         )
         
-        welcome_message = "👋 Welcome! Ask me anything about Python."
+        welcome_message = "👋 Welcome! Ask me anything about Python or your CTI-110 course."
         if rag_backend is not None:
-            welcome_message += " I have access to relevant examples and documentation to help you better."
+            welcome_message += " I have access to examples and documentation from your instructor."
         else:
             welcome_message += " (Note: Enhanced context features are currently unavailable)"
             

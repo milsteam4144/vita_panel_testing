@@ -50,11 +50,23 @@ class RAGBackend:
             })
         return results
 
+# Import the enhanced RAG backend
+try:
+    from rag_backend_enhanced import EnhancedRAGBackend
+    USE_ENHANCED_RAG = True
+except ImportError:
+    print("Warning: Enhanced RAG backend not available, falling back to original")
+    USE_ENHANCED_RAG = False
+
 # Initialize RAG backend
 try:
     print("🔍 Initializing RAG backend...")
-    rag_backend = RAGBackend()
-    print("✅ RAG backend initialized successfully!")
+    if USE_ENHANCED_RAG:
+        rag_backend = EnhancedRAGBackend()
+        print("✅ Enhanced RAG backend initialized successfully!")
+    else:
+        rag_backend = RAGBackend()
+        print("✅ Basic RAG backend initialized successfully!")
 except Exception as e:
     print(f"⚠️ RAG backend initialization failed: {e}")
     rag_backend = None
@@ -65,38 +77,78 @@ def setup_local_chat():
         try:
             # Check if RAG backend is available
             if rag_backend is not None:
-                # Get relevant context from RAG backend
+                # First, check for common misconceptions
+                misconceptions = [
+                    ("if else loop", "I notice you mentioned 'if else loop' - but there's no such thing! These are actually two separate concepts:\n\n• **IF statements** - make decisions (like choosing what to wear based on weather)\n• **LOOPS** - repeat actions (like counting from 1 to 10)\n\nWhat would you like to learn about - making decisions with IF statements, or repeating actions with loops?"),
+                    ("for loop if", "I see you're mixing 'for loop' and 'if' - these are different concepts! Would you like to learn about FOR loops (which repeat actions) or IF statements (which make decisions)?"),
+                    ("while if", "It looks like you're combining 'while' and 'if' concepts. Would you like to learn about WHILE loops (repeating until something changes) or IF statements (making one-time decisions)?")
+                ]
+                
+                user_input_lower = user_input.lower()
+                for misconception, correction in misconceptions:
+                    if misconception in user_input_lower:
+                        instance.send(correction, user="VITA", avatar="🧠", respond=False)
+                        return
+                
+                # Question is valid, proceed with RAG
                 rag_results = rag_backend.query(user_input, k=2)  # Get top 2 matches
                 
                 # Debug: Print what context was found
                 print(f"🔍 RAG Query: {user_input}")
                 for i, result in enumerate(rag_results):
-                    print(f"📄 Match {i+1}: {result['matched_assignment']} | Code: {result['matched_code'][:50]}...")
+                    if hasattr(result, 'get') and result.get('source_file'):
+                        # Enhanced RAG format
+                        print(f"📄 Match {i+1}: {result['source_file']} | Content: {result['answer'][:50]}...")
+                    elif hasattr(result, 'get') and result.get('matched_assignment'):
+                        # Basic RAG format  
+                        print(f"📄 Match {i+1}: {result['matched_assignment']} | Code: {result['matched_code'][:50]}...")
                 
                 # Build enhanced prompt with context
                 context_parts = []
-                for i, result in enumerate(rag_results):
-                    context_parts.append(f"""
-Context {i+1}:
-Student Question: {result['student_question']}
-Code: {result['matched_code']}
-Teacher Response: {result['answer']}
-""")
+                document_sources = []
+                for result in rag_results:
+                    # Handle both enhanced and basic RAG result formats
+                    if hasattr(result, 'get') and result.get('source_file'):
+                        # Enhanced RAG format
+                        document_sources.append(result['source_file'])
+                        context_parts.append(f"Content: {result['answer']}")  # Enhanced backend uses 'answer' field
+                    elif hasattr(result, 'get') and result.get('matched_assignment'):
+                        # Basic RAG format
+                        document_sources.append(result['matched_assignment'])
+                        context_parts.append(f"Question: {result['student_question']}\nCode: {result['matched_code']}\nAnswer: {result['answer']}")
                 
-                context_text = "\n".join(context_parts)
+                context_text = "\n\n".join(context_parts)
                 
-                enhanced_prompt = f"""You are VITA, a Virtual Interactive Teaching Assistant for Python programming. 
+                enhanced_prompt = f"""You are VITA, a virtual teaching assistant helping students discover answers through questions. DO NOT give direct tutorials or explanations.
 
-Here is some relevant context from previous student interactions:
+Educational content:
 {context_text}
 
-Current student question: {user_input}
+Student question: "{user_input}"
 
-Please provide a helpful, educational response that builds on the context above when relevant. If the context doesn't apply to the current question, just answer the question directly. Keep your response conversational and encouraging."""
+Instead of explaining directly, help the student discover the answer by:
+1. Asking guiding questions that lead them to think
+2. Giving hints rather than answers
+3. Using analogies from everyday life
+4. Encouraging them to try things and see what happens
+
+Example approach: "That's a great question! Before we dive in, let me ask you - what do you think happens when you need to make a choice in everyday life, like deciding whether to bring an umbrella? How is that different from doing the same action over and over, like brushing each tooth?"
+
+Be encouraging and use simple language."""
                 
                 # Send to LLM with enhanced prompt
                 loop = asyncio.get_event_loop()
                 response = await loop.run_in_executor(None, call_local_llm, enhanced_prompt)
+                
+                # Add document attribution if sources were found
+                if document_sources:
+                    unique_sources = list(set(document_sources))  # Remove duplicates
+                    if len(unique_sources) == 1:
+                        response += f"\n\n{unique_sources[0]} was considered relevant and used to generate this response."
+                    else:
+                        sources_text = ", ".join(unique_sources)
+                        response += f"\n\n{sources_text} were considered relevant and used to generate this response."
+                
                 instance.send(response, user="VITA", avatar="🧠", respond=False)
             else:
                 # RAG not available, use regular LLM call
@@ -120,9 +172,9 @@ Please provide a helpful, educational response that builds on the context above 
         show_clear=True,
     )
     
-    welcome_message = "👋 Welcome! Ask me anything about Python."
+    welcome_message = "👋 Welcome! Ask me anything about Python or your CTI-110 course."
     if rag_backend is not None:
-        welcome_message += " I have access to relevant examples and documentation to help you better."
+        welcome_message += " I have access to examples and documentation from your instructor."
     else:
         welcome_message += " (Note: Enhanced context features are currently unavailable)"
         

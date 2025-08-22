@@ -8,7 +8,7 @@ load_dotenv()
 
 CLIENT_ID = os.getenv("GITHUB_CLIENT_ID")
 CLIENT_SECRET = os.getenv("GITHUB_CLIENT_SECRET")
-REDIRECT_URI = "http://localhost:8501/vita_app"
+REDIRECT_URI = os.getenv("GITHUB_REDIRECT_URI", "http://172.20.134.66:5006/vita_app")
 AUTHORIZE_URL = "https://github.com/login/oauth/authorize"
 TOKEN_URL = "https://github.com/login/oauth/access_token"
 USER_API_URL = "https://api.github.com/user"
