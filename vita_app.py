@@ -441,22 +441,12 @@ Teacher Response: {result.get('answer', '')}
                         
                         context_text = "\n".join(context_parts)
                         
-                        enhanced_prompt = f"""You are VITA, a virtual teaching assistant helping students discover answers through questions. DO NOT give direct tutorials or explanations.
+                        enhanced_prompt = f"""You are a helpful Python teaching assistant. A student asked: "{user_input}"
 
-Educational content:
+Based on this course material:
 {context_text}
 
-Student question: "{user_input}"
-
-Instead of explaining directly, help the student discover the answer by:
-1. Asking guiding questions that lead them to think
-2. Giving hints rather than answers
-3. Using analogies from everyday life
-4. Encouraging them to try things and see what happens
-
-Example approach: "That's a great question! Before we dive in, let me ask you - what do you think happens when you need to make a choice in everyday life, like deciding whether to bring an umbrella? How is that different from doing the same action over and over, like brushing each tooth?"
-
-Be encouraging and use simple language."""
+Give a simple, direct answer that explains the Python concept clearly. Use "you" when speaking to the student. Keep it short and focused on their specific question."""
                         
                         # Update sources_used with only relevant results
                         sources_used = []
@@ -475,15 +465,9 @@ Be encouraging and use simple language."""
                                 })
                     else:
                         # No relevant content found - provide Python-focused response
-                        enhanced_prompt = f"""You are VITA, a virtual teaching assistant for CTI-110 Python programming. A student asked: "{user_input}"
+                        enhanced_prompt = f"""You are a Python teaching assistant. A student asked: "{user_input}"
 
-Since I don't have specific educational content about this topic, help the student discover the answer by:
-1. Asking guiding questions about Python programming concepts
-2. Encouraging them to experiment with Python code
-3. Using simple analogies to explain programming concepts
-4. Focusing on Python basics like operators, data types, loops, conditionals, and functions
-
-Be encouraging and suggest they try things in Python to see what happens. Always keep responses focused on Python programming for beginners."""
+Explain the Python concept simply and directly. Use "you" when speaking to the student. Focus on Python basics and give a clear, short answer."""
                 else:
                     enhanced_prompt = user_input
                 
