@@ -7,7 +7,7 @@ def call_local_llm(user_input: str) -> str:
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "tinyllama",
+        "model": "qwen2.5:7b",
         "prompt": user_input,
         "stream": False
     }
